@@ -61,7 +61,7 @@ subprogram_declaration:
 ;
 subprogram_head:
         T_FUNCTION T_ID arguments T_COLON standard_type T_SEMICOLON
-        | T_PROCEDURE T_ID
+        | T_PROCEDURE T_ID arguments T_SEMICOLON
 ;
 arguments:
         T_LEFT_PARENTHESIS parameter_list T_RIGHT_PARENTHESIS
