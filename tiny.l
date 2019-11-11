@@ -42,8 +42,8 @@
 "float"                                             {return T_FLOAT;}
 
 
-[a-zA-Z][a-zA-Z0-9]*                                {return T_ID;}
 [a-zA-Z]                                            {return T_LATTER;}
+[a-zA-Z][a-zA-Z0-9]*                                {return T_ID;}
 [0-9]                                               {return T_DIGIT;}
 [0-9]+		                                        {yylval.ival = atoi(yytext); return T_INTEGER;}
 [0-9]+\.[0-9]+ 	                                    {yylval.fval = atof(yytext); return T_FLOATING;}
