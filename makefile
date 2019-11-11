@@ -10,4 +10,4 @@ tiny: lex.yy.c tiny.tab.c tiny.tab.h
 	gcc -o tiny tiny.tab.c lex.yy.c
 
 clean:
-	rm tiny.tab.c lex.yy.c tiny.tab.h
+	rm tiny tiny.tab.c lex.yy.c tiny.tab.h
