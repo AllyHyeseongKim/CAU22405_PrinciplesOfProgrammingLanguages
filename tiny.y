@@ -28,7 +28,7 @@ void yyerror(const char* s);
 
 %%
 prg:
-        T_MAINPROG T_NEWLINE {printf("dsdfs"); exit(0);}
+        T_MAINPROG {printf("dsdfs"); exit(0);}
 ;
 program_start:
         T_MAINPROG T_ID T_SEMICOLON declarations subprogram_declarations compound_statement
@@ -167,12 +167,12 @@ multop:
 ;
 %%
 
-int main() {
-	yyin = stdin;
+int main(int argc, char* argv[]) {
+	yyin = fopen("test", "r");
 
-	do {
+	while(!feof(yyin)) {
 		yyparse();
-	} while(!feof(yyin));
+	}
 
 	return 0;
 }
