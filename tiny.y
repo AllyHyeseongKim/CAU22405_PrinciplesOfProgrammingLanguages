@@ -30,7 +30,7 @@ void yyerror(const char* s);
 %left T_MULTIPLY T_DIVIDE
 */
 
-%start for_statement
+%start program_start
 
 %%
 program_start:
@@ -132,7 +132,7 @@ expression:
         | simple_expression relop simple_expression                                             {}
 ;
 simple_expression:
-        term                                                                                    {;}
+        term                                                                                    {}
         | term addop simple_expression                                                          {}
 ;
 /* NOTE THE ABOVE GRAMMAR HAS BEEN CHANGED */
