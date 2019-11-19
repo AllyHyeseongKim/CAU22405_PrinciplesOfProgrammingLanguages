@@ -19,12 +19,18 @@ typedef union {
         float f;
 } block;
 
+void make_id(std::string var_name, TYPE var_type, int var_index);
+float get_var_val(std::string var_name);
+void st_assign_var(std::string var_name, float val);
+void st_print_val(float num);
+
 std::unordered_map<std::string, std::pair<STACK_PLACE, LENTH> >  var_map;
 std::vector<std::pair<TYPE, block> > mem_stack;
+std::vector<bool> if_label;
 int stack_frame = 0;
 int var_index = 0;
 TYPE var_type;
-int if_bool;
+int if_bool = 1;
 
 
 
@@ -57,7 +63,7 @@ void yyerror(const char* s);
 %type<sval> variable
 %type<ival> identifier_list standard_type type
 
-%start program_start
+%start if_statement
 
 %%
 program_start:
@@ -69,20 +75,8 @@ declarations:
         |                                                                                       {} 
 ;
 identifier_list:
-        T_ID {
-                $$ = 1;
-                var_map[$1] = std::make_pair(mem_stack.size(), var_index);
-                block b = {0};
-                for(int i = 0; i < var_index; i++)
-                        mem_stack.push_back(std::make_pair(var_type, b));
-        }
-        | T_ID T_COMMA identifier_list {
-                $$ = $3 + 1;
-                var_map[$1] = std::make_pair(mem_stack.size(), var_index);
-                block b = {0};
-                for(int i = 0; i < var_index; i++)
-                        mem_stack.push_back(std::make_pair(var_type, b));
-        }
+        T_ID                                                                                    {$$ = 1; make_id($1, var_type, var_index); }
+        | T_ID T_COMMA identifier_list                                                          {$$ = $3 + 1; make_id($1, var_type, var_index);}
 ;
 type:
         standard_type                                                                           {var_index = 1; var_type = (TYPE)$1}
@@ -119,25 +113,20 @@ statement_list:
         | statement T_SEMICOLON statement_list                                                  {}
 ;
 statement:
-        variable T_ASSIGN expression {
-                if(mem_stack[var_map[$1].first].first == INT)
-                        mem_stack[var_map[$1].first + var_index].second.i = (int)$3;
-                else
-                        mem_stack[var_map[$1].first + var_index].second.f = (float)$3;
-        }
+        variable T_ASSIGN expression                                                            {st_assign_var($1, $3);}
         | print_statement                                                                       {}
         | procedure_statement                                                                   {} 
         | compound_statement                                                                    {}
         | if_statement                                                                          {}
         | while_statement                                                                       {}
         | for_statement 
-        | T_RETURN expression                                                                   {$$ = $1} 
+        | T_RETURN expression                                                                   {} 
         | T_NOP                                                                                 {}
 ;
 if_statement:
-        T_IF expression T_COLON statement                                                       {} 
-        | T_IF expression T_COLON statement else_if_statement                                   {}
+        T_IF expression T_COLON statement                                                        
         | T_IF expression T_COLON statement T_ELSE T_COLON statement                            {}
+        | T_IF expression T_COLON statement else_if_statement                                   {}
         | T_IF expression T_COLON statement else_if_statement T_ELSE T_COLON statement          {}
 ;
 else_if_statement:
@@ -154,7 +143,7 @@ for_statement:
 ;
 print_statement:
         T_PRINT                                                                                 {}
-        | T_PRINT T_LEFT_PARENTHESIS expression T_RIGHT_PARENTHESIS                             {printf("%f\n", $3);}
+        | T_PRINT T_LEFT_PARENTHESIS expression T_RIGHT_PARENTHESIS                             {st_print_val($3);}
 ;
 variable:
         T_ID                                                                                    {strcpy($$, $1); var_index = 0;}
@@ -197,12 +186,7 @@ term:
 factor: 
         T_INTEGER                                                                               {$$ = $1}
         | T_FLOATING                                                                            {$$ = $1}
-        | variable {
-                if(mem_stack[var_map[$1].first].first == INT)
-                        $$ = (float)mem_stack[var_map[$1].first].second.i;
-                else
-                        $$ = (float)mem_stack[var_map[$1].first].second.f;
-        }
+        | variable { $$ = get_var_val($1);}
         | procedure_statement                                                                   {}
         | T_NOT factor                                                                          {$$ = ($1) ? $1 : 0}
         | T_PLUS factor                                                                         {$$ = $2}
@@ -212,6 +196,8 @@ factor:
 %%
 
 int main(int argc, char* argv[]) {
+        
+
 	yyin = fopen("test.tiny", "r");
 
 	while(!feof(yyin)) {
@@ -225,3 +211,33 @@ void yyerror(const char* s) {
 	fprintf(stderr, "Parse error: %s\n", s);
 	exit(1);
 }
+
+void make_id(std::string var_name, TYPE var_type, int var_index) {
+        var_map[var_name.c_str()] = std::make_pair(mem_stack.size(), var_index);
+        block b = {0};
+        for(int i = 0; i < var_index; i++)
+                mem_stack.push_back(std::make_pair(var_type, b));
+}
+
+float get_var_val(std::string var_name) {
+        if(mem_stack[var_map[var_name].first].first == INT) return (float)mem_stack[var_map[var_name].first + var_index].second.i;
+        else return (float)mem_stack[var_map[var_name].first + var_index].second.f;
+}
+
+void st_assign_var(std::string var_name, float val) {
+        if(!if_label.empty() && !if_label.back()) {
+                if_label.pop_back();
+                return;
+        }
+        if(mem_stack[var_map[var_name].first].first == INT) mem_stack[var_map[var_name].first + var_index].second.i = (int)val;
+        else mem_stack[var_map[var_name].first + var_index].second.f = (float)val;
+}
+
+void st_print_val(float num) {
+        if(!if_label.empty() && !if_label.back()) {
+                if_label.pop_back();
+                return;
+        }
+        printf("%.4f", num);
+}
+
