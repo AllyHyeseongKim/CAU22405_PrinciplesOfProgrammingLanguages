@@ -2,6 +2,7 @@
 
 %{
 #include <stdio.h>
+#include <iostream>
 
 #define YY_DECL int yylex()
 
@@ -46,13 +47,13 @@
 "return"                                            {return T_RETURN;}
 "print"                                             {return T_PRINT;}
 "elif"                                              {return T_ELIF;}
-"int"                                               {return T_INT;}
+"int"                                               {strcpy(yylval.sval, yytext);  return T_INT;}
 "in"                                                {return T_IN;}
-"float"                                             {return T_FLOAT;}
+"float"                                             {strcpy(yylval.sval, yytext);  return T_FLOAT;}
 "for"                                               {return T_FOR;}
 
 
-[a-zA-Z][a-zA-Z0-9]*                                {return T_ID;}
+[a-zA-Z][a-zA-Z0-9]*                                {strcpy(yylval.sval, yytext);  return T_ID;}
 [0-9]+\.[0-9]+ 	                                    {yylval.fval = atof(yytext); return T_FLOATING;}
 [0-9]+		                                        {yylval.ival = atoi(yytext); return T_INTEGER;}
 .                                                   {return T_NONE;}
