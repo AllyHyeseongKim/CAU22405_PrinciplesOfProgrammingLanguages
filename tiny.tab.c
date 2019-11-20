@@ -169,6 +169,7 @@
 #line 1 "tiny.y"
 
 #include "astgen.h"
+#include "astexec.h"
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -202,7 +203,7 @@ void yyerror(const char* s);
 
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 typedef union YYSTYPE
-#line 16 "tiny.y"
+#line 17 "tiny.y"
 {
 	int ival;
 	float fval;
@@ -210,7 +211,7 @@ typedef union YYSTYPE
         char sval[100];
 }
 /* Line 193 of yacc.c.  */
-#line 214 "tiny.tab.c"
+#line 215 "tiny.tab.c"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1
@@ -223,7 +224,7 @@ typedef union YYSTYPE
 
 
 /* Line 216 of yacc.c.  */
-#line 227 "tiny.tab.c"
+#line 228 "tiny.tab.c"
 
 #ifdef short
 # undef short
@@ -542,14 +543,14 @@ static const yytype_int8 yyrhs[] =
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    46,    46,    47,    51,    52,    55,    56,    59,    60,
-      63,    64,    67,    68,    71,    74,    75,    78,    79,    82,
-      83,    86,    89,    90,    93,    94,    95,    96,    97,    98,
-      99,   100,   101,   104,   105,   106,   107,   110,   111,   114,
-     115,   118,   119,   122,   123,   126,   127,   130,   133,   134,
-     137,   138,   141,   142,   143,   144,   145,   146,   147,   148,
-     151,   152,   153,   157,   158,   159,   162,   163,   164,   165,
-     166,   167,   168
+       0,    47,    47,    48,    52,    53,    56,    57,    60,    61,
+      64,    65,    68,    69,    72,    75,    76,    79,    80,    83,
+      84,    87,    90,    91,    94,    95,    96,    97,    98,    99,
+     100,   101,   102,   105,   106,   107,   108,   111,   112,   115,
+     116,   119,   120,   123,   124,   127,   128,   131,   134,   135,
+     138,   139,   142,   143,   144,   145,   146,   147,   148,   149,
+     152,   153,   154,   158,   159,   160,   163,   164,   165,   166,
+     167,   168,   169
 };
 #endif
 
@@ -1554,333 +1555,333 @@ yyreduce:
   switch (yyn)
     {
         case 3:
-#line 47 "tiny.y"
+#line 48 "tiny.y"
     {;}
     break;
 
   case 4:
-#line 51 "tiny.y"
-    {;}
-    break;
-
-  case 5:
 #line 52 "tiny.y"
     {;}
     break;
 
+  case 5:
+#line 53 "tiny.y"
+    {;}
+    break;
+
   case 6:
-#line 55 "tiny.y"
+#line 56 "tiny.y"
     {(yyval.ival) = 1; make_id((yyvsp[(1) - (1)].ival), varType, varIndex); ;}
     break;
 
   case 7:
-#line 56 "tiny.y"
+#line 57 "tiny.y"
     {(yyval.ival) = (yyvsp[(3) - (3)].ival) + 1; make_id((yyvsp[(1) - (3)].ival), varType, varIndex);;}
     break;
 
   case 8:
-#line 59 "tiny.y"
+#line 60 "tiny.y"
     {varIndex = 1; varType = (TYPE)(yyvsp[(1) - (1)].ival);}
     break;
 
   case 9:
-#line 60 "tiny.y"
+#line 61 "tiny.y"
     {varIndex = (yyvsp[(3) - (4)].ival); varType = (TYPE)(yyvsp[(1) - (4)].ival);}
     break;
 
   case 10:
-#line 63 "tiny.y"
+#line 64 "tiny.y"
     {(yyval.ival) = INT;}
     break;
 
   case 11:
-#line 64 "tiny.y"
+#line 65 "tiny.y"
     {(yyval.ival) = FLOAT;;}
     break;
 
   case 12:
-#line 67 "tiny.y"
+#line 68 "tiny.y"
     {;}
     break;
 
   case 14:
-#line 71 "tiny.y"
+#line 72 "tiny.y"
     {;}
     break;
 
   case 15:
-#line 74 "tiny.y"
-    {;}
-    break;
-
-  case 16:
 #line 75 "tiny.y"
     {;}
     break;
 
-  case 17:
-#line 78 "tiny.y"
+  case 16:
+#line 76 "tiny.y"
     {;}
     break;
 
-  case 18:
+  case 17:
 #line 79 "tiny.y"
     {;}
     break;
 
-  case 19:
-#line 82 "tiny.y"
+  case 18:
+#line 80 "tiny.y"
     {;}
     break;
 
-  case 20:
+  case 19:
 #line 83 "tiny.y"
     {;}
     break;
 
+  case 20:
+#line 84 "tiny.y"
+    {;}
+    break;
+
   case 21:
-#line 86 "tiny.y"
+#line 87 "tiny.y"
     {;}
     break;
 
   case 22:
-#line 89 "tiny.y"
-    {;}
-    break;
-
-  case 23:
 #line 90 "tiny.y"
     {;}
     break;
 
+  case 23:
+#line 91 "tiny.y"
+    {;}
+    break;
+
   case 24:
-#line 93 "tiny.y"
+#line 94 "tiny.y"
     {assign_var((yyvsp[(1) - (3)].ival), (yyvsp[(3) - (3)].fval), varIndex);;}
     break;
 
   case 25:
-#line 94 "tiny.y"
-    {;}
-    break;
-
-  case 26:
 #line 95 "tiny.y"
     {;}
     break;
 
-  case 27:
+  case 26:
 #line 96 "tiny.y"
     {;}
     break;
 
-  case 28:
+  case 27:
 #line 97 "tiny.y"
     {;}
     break;
 
-  case 29:
+  case 28:
 #line 98 "tiny.y"
     {;}
     break;
 
-  case 31:
-#line 100 "tiny.y"
+  case 29:
+#line 99 "tiny.y"
     {;}
     break;
 
-  case 32:
+  case 31:
 #line 101 "tiny.y"
     {;}
     break;
 
-  case 34:
-#line 105 "tiny.y"
+  case 32:
+#line 102 "tiny.y"
     {;}
     break;
 
-  case 35:
+  case 34:
 #line 106 "tiny.y"
     {;}
     break;
 
-  case 36:
+  case 35:
 #line 107 "tiny.y"
     {;}
     break;
 
-  case 37:
-#line 110 "tiny.y"
+  case 36:
+#line 108 "tiny.y"
     {;}
     break;
 
-  case 38:
+  case 37:
 #line 111 "tiny.y"
     {;}
     break;
 
-  case 39:
-#line 114 "tiny.y"
+  case 38:
+#line 112 "tiny.y"
     {;}
     break;
 
-  case 40:
+  case 39:
 #line 115 "tiny.y"
     {;}
     break;
 
+  case 40:
+#line 116 "tiny.y"
+    {;}
+    break;
+
   case 43:
-#line 122 "tiny.y"
+#line 123 "tiny.y"
     {;}
     break;
 
   case 44:
-#line 123 "tiny.y"
+#line 124 "tiny.y"
     {print_val((yyvsp[(3) - (4)].fval));;}
     break;
 
   case 45:
-#line 126 "tiny.y"
+#line 127 "tiny.y"
     {(yyval.ival) = (yyvsp[(1) - (1)].ival); varIndex = 0;;}
     break;
 
   case 46:
-#line 127 "tiny.y"
+#line 128 "tiny.y"
     {(yyval.ival) = (yyvsp[(1) - (4)].ival); varIndex = (int)(yyvsp[(3) - (4)].fval);;}
     break;
 
   case 47:
-#line 130 "tiny.y"
+#line 131 "tiny.y"
     {;}
     break;
 
   case 48:
-#line 133 "tiny.y"
-    {;}
-    break;
-
-  case 49:
 #line 134 "tiny.y"
     {;}
     break;
 
-  case 50:
-#line 137 "tiny.y"
+  case 49:
+#line 135 "tiny.y"
     {;}
     break;
 
-  case 51:
+  case 50:
 #line 138 "tiny.y"
     {;}
     break;
 
+  case 51:
+#line 139 "tiny.y"
+    {;}
+    break;
+
   case 52:
-#line 141 "tiny.y"
+#line 142 "tiny.y"
     {(yyval.fval) = (yyvsp[(1) - (1)].fval);}
     break;
 
   case 53:
-#line 142 "tiny.y"
+#line 143 "tiny.y"
     {(yyval.fval) = ((yyvsp[(1) - (3)].fval) > (yyvsp[(3) - (3)].fval))? 1: 0;}
     break;
 
   case 54:
-#line 143 "tiny.y"
+#line 144 "tiny.y"
     {(yyval.fval) = ((yyvsp[(1) - (3)].fval) >= (yyvsp[(3) - (3)].fval))? 1: 0;}
     break;
 
   case 55:
-#line 144 "tiny.y"
+#line 145 "tiny.y"
     {(yyval.fval) = ((yyvsp[(1) - (3)].fval) < (yyvsp[(3) - (3)].fval))? 1: 0;}
     break;
 
   case 56:
-#line 145 "tiny.y"
+#line 146 "tiny.y"
     {(yyval.fval) = ((yyvsp[(1) - (3)].fval) <= (yyvsp[(3) - (3)].fval))? 1: 0;}
     break;
 
   case 57:
-#line 146 "tiny.y"
+#line 147 "tiny.y"
     {(yyval.fval) = ((yyvsp[(1) - (3)].fval) == (yyvsp[(3) - (3)].fval))? 1: 0;}
     break;
 
   case 58:
-#line 147 "tiny.y"
+#line 148 "tiny.y"
     {(yyval.fval) = ((yyvsp[(1) - (3)].fval) != (yyvsp[(3) - (3)].fval))? 1: 0;}
     break;
 
   case 59:
-#line 148 "tiny.y"
+#line 149 "tiny.y"
     {;}
     break;
 
   case 60:
-#line 151 "tiny.y"
+#line 152 "tiny.y"
     {(yyval.fval) = (yyvsp[(1) - (1)].fval);;}
     break;
 
   case 61:
-#line 152 "tiny.y"
+#line 153 "tiny.y"
     {(yyval.fval) = (yyvsp[(1) - (3)].fval) + (yyvsp[(3) - (3)].fval);}
     break;
 
   case 62:
-#line 153 "tiny.y"
+#line 154 "tiny.y"
     {(yyval.fval) = (yyvsp[(1) - (3)].fval) - (yyvsp[(3) - (3)].fval);;}
     break;
 
   case 63:
-#line 157 "tiny.y"
+#line 158 "tiny.y"
     {(yyval.fval) = (yyvsp[(1) - (1)].fval);}
     break;
 
   case 64:
-#line 158 "tiny.y"
+#line 159 "tiny.y"
     {(yyval.fval) = (yyvsp[(1) - (3)].fval) * (yyvsp[(3) - (3)].fval);}
     break;
 
   case 65:
-#line 159 "tiny.y"
+#line 160 "tiny.y"
     {(yyval.fval) = (yyvsp[(1) - (3)].fval) / (yyvsp[(3) - (3)].fval);}
     break;
 
   case 66:
-#line 162 "tiny.y"
+#line 163 "tiny.y"
     {(yyval.fval) = (yyvsp[(1) - (1)].ival);}
     break;
 
   case 67:
-#line 163 "tiny.y"
+#line 164 "tiny.y"
     {(yyval.fval) = (yyvsp[(1) - (1)].fval);}
     break;
 
   case 68:
-#line 164 "tiny.y"
+#line 165 "tiny.y"
     {(yyval.fval) = get_var_val((yyvsp[(1) - (1)].ival), varIndex);;}
     break;
 
   case 69:
-#line 165 "tiny.y"
+#line 166 "tiny.y"
     {;}
     break;
 
   case 70:
-#line 166 "tiny.y"
+#line 167 "tiny.y"
     {(yyval.fval) = ((yyvsp[(1) - (2)].cval)) ? (yyvsp[(1) - (2)].cval) : 0;}
     break;
 
   case 71:
-#line 167 "tiny.y"
+#line 168 "tiny.y"
     {(yyval.fval) = (yyvsp[(2) - (2)].fval);}
     break;
 
   case 72:
-#line 168 "tiny.y"
+#line 169 "tiny.y"
     {(yyval.fval) = -(yyvsp[(2) - (2)].fval);}
     break;
 
 
 /* Line 1267 of yacc.c.  */
-#line 1884 "tiny.tab.c"
+#line 1885 "tiny.tab.c"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);
@@ -2094,7 +2095,7 @@ yyreturn:
 }
 
 
-#line 171 "tiny.y"
+#line 172 "tiny.y"
 
 
 int main(int argc, char* argv[]) {

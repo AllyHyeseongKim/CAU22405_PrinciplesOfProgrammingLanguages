@@ -5,31 +5,6 @@
 #include <assert.h>
 
 
-void make_id(int var_name, TYPE varType, int varIndex) {
-        var_map[var_name][0] = stackSize;
-        var_map[var_name][1] = varIndex;
-        for(int i = 0; i < varIndex; i++) {
-                mem_stack[stackSize][0].i = varType;
-                mem_stack[stackSize][0].f = 0;
-                stackSize++;
-        }
-}
-
-float get_var_val(int var_name, int varIndex) {
-        if(mem_stack[var_map[var_name][0]][0].i == INT) return (float)mem_stack[var_map[var_name][0] + varIndex][1].i;
-        else return (float)mem_stack[var_map[var_name][0] + varIndex][1].f;
-}
-
-void assign_var(int var_name, float val, int varIndex) {
-        if(mem_stack[var_map[var_name][0]][0].i == INT) mem_stack[var_map[var_name][0] + varIndex][1].i = (int)val;
-        else mem_stack[var_map[var_name][0] + varIndex][1].f = (float)val;
-}
-
-void print_val(float num) {
-        printf("%.4f", num);
-}
-
-
 static void* checkAlloc(size_t sz)
 {
     void* result = calloc(sz, 1);
@@ -40,12 +15,13 @@ static void* checkAlloc(size_t sz)
     }
 }
 
-struct AstElement* makeAssignment(int name, struct AstElement* val)
+struct AstElement* makeAssignment(int name, int index, struct AstElement* val)
 {
     struct AstElement* result = checkAlloc(sizeof(*result));
     result->kind = ekAssignment;
     result->data.assignment.name = name;
     result->data.assignment.right = val;
+    result->data.assignment.index = index;
     return result;
 }
 
@@ -57,11 +33,12 @@ struct AstElement* makeExpByNum(float val)
     return result;
 }
 
-struct AstElement* makeExpByName(int name)
+struct AstElement* makeExpByName(int name, int index)
 {
     struct AstElement* result = checkAlloc(sizeof(*result));
     result->kind = ekId;
     result->data.name = name;
+    result->data.index = index;
     return result;
 }
 

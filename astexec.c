@@ -4,6 +4,32 @@
 #include <assert.h>
 #include <stdio.h>
 
+
+void make_id(int var_name, TYPE varType, int varIndex) {
+        var_map[var_name][0] = stackSize;
+        var_map[var_name][1] = varIndex;
+        for(int i = 0; i < varIndex; i++) {
+                mem_stack[stackSize][0].i = varType;
+                mem_stack[stackSize][0].f = 0;
+                stackSize++;
+        }
+}
+
+float get_var_val(int var_name, int varIndex) {
+        if(mem_stack[var_map[var_name][0]][0].i == INT) return (float)mem_stack[var_map[var_name][0] + varIndex][1].i;
+        else return (float)mem_stack[var_map[var_name][0] + varIndex][1].f;
+}
+
+void assign_var(int var_name, float val, int varIndex) {
+        if(mem_stack[var_map[var_name][0]][0].i == INT) mem_stack[var_map[var_name][0] + varIndex][1].i = (int)val;
+        else mem_stack[var_map[var_name][0] + varIndex][1].f = (float)val;
+}
+
+void print_val(float num) {
+        printf("%.4f", num);
+}
+
+
 struct ExecEnviron
 {
     float x; /* The value of the x variable, a real language would have some name->value lookup table instead */
@@ -66,11 +92,6 @@ static void onlyName(const char* name, const char* reference, const char* kind)
     }
 }
 
-static void onlyX(const char* name)
-{
-    onlyName(name, "x", "variable");
-}
-
 static void onlyPrint(const char* name)
 {
     onlyName(name, "print", "function");
@@ -90,9 +111,8 @@ static float execTermExpression(struct ExecEnviron* e, struct AstElement* a)
     {
         if(ekId == a->kind)
         {
-            onlyX(a->data.name);
             assert(e);
-            return e->x;
+            return get_var_val(a->data.name, a->data.index);
         }
     }
     fprintf(stderr, "OOPS: tried to get the value of a non-expression(%d)\n", a->kind);
@@ -127,10 +147,9 @@ static void execAssign(struct ExecEnviron* e, struct AstElement* a)
 {
     assert(a);
     assert(ekAssignment == a->kind);
-    onlyX(a->data.assignment.name);
     assert(e);
     struct AstElement* r = a->data.assignment.right;
-    e->x = dispatchExpression(e, r);
+    assign_var(a->data.assignment.name, dispatchExpression(e, r), a->data.assignment.index);
 }
 
 static void execWhile(struct ExecEnviron* e, struct AstElement* a)

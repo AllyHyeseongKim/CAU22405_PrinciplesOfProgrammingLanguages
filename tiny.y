@@ -1,5 +1,6 @@
 %{
 #include "astgen.h"
+#include "astexec.h"
 #include <stdio.h>
 #include <stdlib.h>
 
