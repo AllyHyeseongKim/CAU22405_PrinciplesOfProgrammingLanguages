@@ -39,7 +39,7 @@ void yyerror(const char* s);
 %left T_MULTIPLE T_DIVIDE
 
 %type<ast> procedure_statement statement compound_statement statement_list while_statement
-%type<ast> term factor simple_expression expression print_statement if_statement
+%type<ast> term factor simple_expression expression print_statement if_statement else_if_statement
 %type<ival> variable identifier_list standard_type type
 
 %start program_start
@@ -102,18 +102,18 @@ statement:
         | T_NOP                                                                                 {$$ = makeNop()}
 ;
 if_statement:
-        T_IF expression T_COLON statement T_SEMICOLON T_ELSE T_COLON statement                  {$$ = makeIfElse($2, $4, $8)}
-        | T_IF expression T_COLON statement else_if_statement                                   {}
-        | T_IF expression T_COLON statement else_if_statement T_ELSE T_COLON statement          {}
-        | T_IF expression T_COLON statement                                                     {}
+        T_IF expression T_COLON statement                                                       {$$ = makeIfElse($2, $4, makeNop())}
+        // | T_IF expression T_COLON statement T_SEMICOLON T_ELSE T_COLON statement                {$$ = makeIfElse($2, $4, $8)}
+        | T_IF expression T_COLON statement T_SEMICOLON else_if_statement                       {$$ = makeIfElse($2, $4, $6)}
 ;
 else_if_statement:
-        T_ELIF expression T_COLON statement                                                     {}
-        | T_ELIF expression T_COLON statement else_if_statement                                 {}
+        // T_ELIF expression T_COLON statement                                                  {$$ = makeIfElse($2, $4, makeNop())}
+        | T_ELIF expression T_COLON statement  T_SEMICOLON  T_ELSE T_COLON statement            {$$ = makeIfElse($2, $4, $8)}
+        | T_ELIF expression T_COLON statement T_SEMICOLON else_if_statement                     {$$ = makeIfElse($2, $4, $6)}
 ;
 while_statement:
          T_WHILE expression T_COLON statement                                                   {$$ = makeWhile($2, $4);}
-        | T_WHILE expression T_COLON statement T_ELSE T_COLON statement                         {}
+        | T_WHILE expression T_COLON statement T_SEMICOLON T_ELSE T_COLON statement             {$$ = makeIfElse($2, makeWhile($2, $4), $8)}
 ;
 for_statement:
          T_FOR expression T_IN expression T_COLON statement
