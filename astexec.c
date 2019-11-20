@@ -240,12 +240,13 @@ static void execProcedure(struct ExecEnviron* e, struct AstElement* a) {
     assert(ekProcedure == a->kind);
 
     int stack_frame = stackSize;
-    int *temp_var_map = malloc(sizeof(var_map));
+    int var_map_size = sizeof(int)*HASHSIZE*2;
+    int *temp_var_map = malloc(var_map_size);
     if (!temp_var_map) {
         fprintf(stderr, "No memory space for var_map\n");
         exit(1);
     }
-    memcpy(temp_var_map, var_map, sizeof(var_map));
+    memcpy(temp_var_map, var_map, var_map_size);
 
     struct AstElement* stament = sub_program_map[a->data.procedure.name];
     int i;
@@ -256,7 +257,7 @@ static void execProcedure(struct ExecEnviron* e, struct AstElement* a) {
     }
 
     stackSize = stack_frame;
-    memcpy(var_map, temp_var_map, sizeof(var_map));
+    memcpy(var_map, temp_var_map, var_map_size);
     free(temp_var_map);
 }
 

@@ -11,6 +11,6 @@ int a;
 
 begin
     a = 1;
-    pro(1);
-    print(a)
+    print(a);
+    pro(1)
 end
