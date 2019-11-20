@@ -46,6 +46,7 @@ static void execWhile(struct ExecEnviron* e, struct AstElement* a);
 static void execCall(struct ExecEnviron* e, struct AstElement* a);
 static void execStmt(struct ExecEnviron* e, struct AstElement* a);
 static void execIf(struct ExecEnviron* e, struct AstElement* a);
+static void execNop(struct ExecEnviron* e, struct AstElement* a);
 
 /* Lookup Array for AST elements which yields values */
 static float(*valExecs[])(struct ExecEnviron* e, struct AstElement* a) =
@@ -53,6 +54,7 @@ static float(*valExecs[])(struct ExecEnviron* e, struct AstElement* a) =
     execTermExpression,
     execTermExpression,
     execBinExp,
+    NULL,
     NULL,
     NULL,
     NULL,
@@ -70,7 +72,8 @@ static void(*runExecs[])(struct ExecEnviron* e, struct AstElement* a) =
     execWhile,
     execCall,
     execStmt,
-    execIf
+    execIf,
+    execNop
 };
 
 /* Dispatches any value expression */
@@ -204,6 +207,12 @@ static void execIf(struct ExecEnviron* e, struct AstElement* a) {
     } else {
         dispatchStatement(e, else_s);
     }
+}
+
+static void execNop(struct ExecEnviron* e, struct AstElement* a) {
+    assert(a);
+    assert(ekNop == a->kind);
+    return;
 }
 
 void execAst(struct ExecEnviron* e, struct AstElement* a)

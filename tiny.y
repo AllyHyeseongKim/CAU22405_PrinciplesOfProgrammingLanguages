@@ -99,7 +99,7 @@ statement:
         | while_statement                                                                       {$$ = $1}
         | for_statement 
         | T_RETURN expression                                                                   {} 
-        | T_NOP                                                                                 {$$ = 0}
+        | T_NOP                                                                                 {$$ = makeNop()}
 ;
 if_statement:
         T_IF expression T_COLON statement T_SEMICOLON T_ELSE T_COLON statement                  {$$ = makeIfElse($2, $4, $8)}

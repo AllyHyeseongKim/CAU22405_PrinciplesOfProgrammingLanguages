@@ -96,3 +96,9 @@ struct AstElement* makeIfElse(struct AstElement* cond, struct AstElement* ifStmt
     
     return result;
 }
+
+struct AstElement* makeNop(){
+    struct AstElement* result = checkAlloc(sizeof(*result));
+    result->kind = ekNop;
+    return result;
+}
