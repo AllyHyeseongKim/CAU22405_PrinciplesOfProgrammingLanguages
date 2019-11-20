@@ -4,7 +4,7 @@
 
 struct AstElement
 {
-    enum {ekId, ekNumber, ekBinExpression, ekAssignment, ekWhile, ekCall, ekStatements, ekLastElement} kind;
+    enum {ekId, ekNumber, ekBinExpression, ekAssignment, ekWhile, ekCall, ekStatements, ekLastElement, ekIf} kind;
     union
     {
         float val;
@@ -35,6 +35,12 @@ struct AstElement
             char* name;
             struct AstElement* param;
         }call;
+        struct
+        {
+            struct AstElement* cond;
+            struct AstElement* if_statement;
+            struct AstElement* else_statement;
+        } ifStmt;
     } data;
 };
 
@@ -45,4 +51,5 @@ struct AstElement* makeExp(struct AstElement* left, struct AstElement* right, ch
 struct AstElement* makeStatement(struct AstElement* dest, struct AstElement* toAppend);
 struct AstElement* makeWhile(struct AstElement* cond, struct AstElement* exec);
 struct AstElement* makeCall(char* name, struct AstElement* param);
+struct AstElement* makeIfElse(struct AstElement* cond, struct AstElement* ifStmt, struct AstElement* elseStmt);
 #endif

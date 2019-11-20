@@ -45,6 +45,7 @@ static void execAssign(struct ExecEnviron* e, struct AstElement* a);
 static void execWhile(struct ExecEnviron* e, struct AstElement* a);
 static void execCall(struct ExecEnviron* e, struct AstElement* a);
 static void execStmt(struct ExecEnviron* e, struct AstElement* a);
+static void execIf(struct ExecEnviron* e, struct AstElement* a);
 
 /* Lookup Array for AST elements which yields values */
 static float(*valExecs[])(struct ExecEnviron* e, struct AstElement* a) =
@@ -52,6 +53,7 @@ static float(*valExecs[])(struct ExecEnviron* e, struct AstElement* a) =
     execTermExpression,
     execTermExpression,
     execBinExp,
+    NULL,
     NULL,
     NULL,
     NULL,
@@ -68,6 +70,7 @@ static void(*runExecs[])(struct ExecEnviron* e, struct AstElement* a) =
     execWhile,
     execCall,
     execStmt,
+    execIf
 };
 
 /* Dispatches any value expression */
@@ -186,6 +189,20 @@ static void execStmt(struct ExecEnviron* e, struct AstElement* a)
     for(i=0; i<a->data.statements.count; i++)
     {
         dispatchStatement(e, a->data.statements.statements[i]);
+    }
+}
+
+static void execIf(struct ExecEnviron* e, struct AstElement* a) {
+    assert(a);
+    assert(ekStatements == a->kind);
+    struct AstElement* const c = a->data.ifStmt.cond;
+    struct AstElement* const if_s = a->data.ifStmt.if_statement;
+    struct AstElement* const else_s = a->data.ifStmt.else_statement;
+
+    if(dispatchExpression(e, c)) {
+        dispatchStatement(e, if_s);
+    } else {
+        dispatchStatement(e, else_s);
     }
 }
 

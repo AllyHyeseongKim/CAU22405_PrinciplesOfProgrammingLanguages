@@ -39,7 +39,7 @@ void yyerror(const char* s);
 %left T_MULTIPLE T_DIVIDE
 
 %type<ast> procedure_statement statement compound_statement statement_list while_statement
-%type<ast> term factor simple_expression expression print_statement
+%type<ast> term factor simple_expression expression print_statement if_statement
 %type<ival> variable identifier_list standard_type type
 
 %start program_start
@@ -102,10 +102,10 @@ statement:
         | T_NOP                                                                                 {}
 ;
 if_statement:
-        T_IF expression T_COLON statement                                                        
-        | T_IF expression T_COLON statement T_ELSE T_COLON statement                            {}
-        | T_IF expression T_COLON statement else_if_statement                                   {}
-        | T_IF expression T_COLON statement else_if_statement T_ELSE T_COLON statement          {}
+        T_IF expression T_COLON statement T_ELSE T_COLON statement                            {puts("sdf");$$ = makeIfElse($2, $4, $7);}
+        | T_IF expression T_COLON statement else_if_statement                                   {puts("1");}
+        | T_IF expression T_COLON statement else_if_statement T_ELSE T_COLON statement          {puts("2");}
+        // | T_IF expression T_COLON statement                                                       {puts("3");}
 ;
 else_if_statement:
         T_ELIF expression T_COLON statement                                                     {}
