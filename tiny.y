@@ -46,12 +46,12 @@ void yyerror(const char* s);
 
 %%
 program_start:
-        | T_MAINPROG T_ID T_SEMICOLON declarations subprogram_declarations compound_statement T_SEMICOLON   { (*(struct AstElement**)astDest) = $6; }
+        | T_MAINPROG T_ID T_SEMICOLON declarations subprogram_declarations compound_statement   { (*(struct AstElement**)astDest) = $6; }
 
 ;
 declarations:
-        type identifier_list T_SEMICOLON declarations                                           {}
-        |                                                                                       {} 
+        type identifier_list T_SEMICOLON declarations                                           // 구현 완료                                          
+        |                                                                                        
 ;
 identifier_list:
         T_ID                                                                                    {;$$ = 1; make_id($1, varType, varIndex); }
@@ -87,8 +87,9 @@ parameter_list:
 compound_statement:
         T_BEGIN statement_list T_END                                                            {$$ = $2;}
 ;
-statement_list:                                                                                 {$$=0;}
-        | statement_list statement T_SEMICOLON                                                  {$$ = makeStatement($1, $2);}      
+statement_list:
+        statement                                                                               {$$ = makeStatement($1, 0);}
+        | statement T_SEMICOLON statement_list                                                  {$$ = makeStatement($1, $3);}      
 ;
 statement:
         variable T_ASSIGN expression                                                            {$$ = makeAssignment($1, varIndex, $3);}
@@ -103,17 +104,17 @@ statement:
 ;
 if_statement:
         T_IF expression T_COLON statement                                                       {$$ = makeIfElse($2, $4, makeNop())}
-        // | T_IF expression T_COLON statement T_SEMICOLON T_ELSE T_COLON statement                {$$ = makeIfElse($2, $4, $8)}
-        | T_IF expression T_COLON statement T_SEMICOLON else_if_statement                       {$$ = makeIfElse($2, $4, $6)}
+        | T_IF expression T_COLON statement T_ELSE T_COLON statement                            {$$ = makeIfElse($2, $4, $7)}
+        | T_IF expression T_COLON statement else_if_statement                                   {$$ = makeIfElse($2, $4, $5)}
 ;
 else_if_statement:
-        // T_ELIF expression T_COLON statement                                                  {$$ = makeIfElse($2, $4, makeNop())}
-        | T_ELIF expression T_COLON statement  T_SEMICOLON  T_ELSE T_COLON statement            {$$ = makeIfElse($2, $4, $8)}
-        | T_ELIF expression T_COLON statement T_SEMICOLON else_if_statement                     {$$ = makeIfElse($2, $4, $6)}
+        T_ELIF expression T_COLON statement                                                     {$$ = makeIfElse($2, $4, makeNop())}
+        | T_ELIF expression T_COLON statement T_ELSE T_COLON statement                          {$$ = makeIfElse($2, $4, $7)}
+        | T_ELIF expression T_COLON statement else_if_statement                                 {$$ = makeIfElse($2, $4, $5)}
 ;
 while_statement:
          T_WHILE expression T_COLON statement                                                   {$$ = makeWhile($2, $4);}
-        | T_WHILE expression T_COLON statement T_SEMICOLON T_ELSE T_COLON statement             {$$ = makeIfElse($2, makeWhile($2, $4), $8)}
+        | T_WHILE expression T_COLON statement T_ELSE T_COLON statement                         {$$ = makeIfElse($2, makeWhile($2, $4), $7)}
 ;
 for_statement:
          T_FOR expression T_IN expression T_COLON statement
@@ -141,11 +142,11 @@ expression_list:
 expression:
         simple_expression                                                                       {$$ = $1}
         | simple_expression T_LARGER simple_expression                                          {$$ = makeExp($1, $3, '>');}
-        | simple_expression T_LARGER_EQUAL simple_expression                                    // {$$ = ($1 >= $3)? 1: 0}
+        | simple_expression T_LARGER_EQUAL simple_expression                                    {$$ = makeExp($1, $3, '1');}
         | simple_expression T_SMALLER simple_expression                                         {$$ = makeExp($1, $3, '<');}
-        | simple_expression T_SMALLER_EQUAL simple_expression                                   // {$$ = ($1 <= $3)? 1: 0}
-        | simple_expression T_EQUAL simple_expression                                           // {$$ = ($1 == $3)? 1: 0}
-        | simple_expression T_NOT_EQUAL simple_expression                                       // {$$ = ($1 != $3)? 1: 0}
+        | simple_expression T_SMALLER_EQUAL simple_expression                                   {$$ = makeExp($1, $3, '2');}
+        | simple_expression T_EQUAL simple_expression                                           {$$ = makeExp($1, $3, '=');}
+        | simple_expression T_NOT_EQUAL simple_expression                                       {$$ = makeExp($1, $3, '!');}
         | simple_expression T_IN simple_expression                                              {}
 ;
 simple_expression:
@@ -160,13 +161,13 @@ term:
         | factor T_DIVIDE term                                                                  {$$ = makeExp($1, $3, '/');}
 ;
 factor: 
-        T_INTEGER                                                                               {$$ = makeExpByNum($1)}
+        T_INTEGER                                                                               {$$ = makeExpByNum($1);}
         | T_FLOATING                                                                            {$$ = makeExpByNum($1)}
         | variable                                                                              {$$ = makeExpByName($1, varIndex);}
         | procedure_statement                                                                   {}
-        | T_NOT factor                                                                         // {$$ = ($1) ? $1 : 0}
-        | T_PLUS factor                                                                        // {$$ = $2}
-        | T_MINUS factor                                                                       // {$$ = -$2}
+        | T_NOT factor                                                                          {$$ = ($2->data.val) ? $2 : makeExpByNum(0)}
+        | T_PLUS factor                                                                         {$$ = makeExp(makeExpByNum(0), $2, '+')}
+        | T_MINUS factor                                                                        {$$ = makeExp(makeExpByNum(0), $2, '-')}
 ;
 
 %%

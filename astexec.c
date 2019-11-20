@@ -142,10 +142,18 @@ static float execBinExp(struct ExecEnviron* e, struct AstElement* a)
             return left - right;
         case '*':
             return left * right;
-        case '<':
-            return left < right;
         case '>':
             return left > right;
+        case '<':
+            return left < right;
+        case '1':
+            return left <= right;
+        case '2':
+            return left >= right;
+        case '=':
+            return left == right;
+        case '!':
+            return left != right;
         default:
             fprintf(stderr,  "OOPS: Unknown operator:%c\n", a->data.expression.op);
             exit(1);

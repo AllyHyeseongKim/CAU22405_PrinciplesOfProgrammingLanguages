@@ -55,18 +55,30 @@ struct AstElement* makeExp(struct AstElement* left, struct AstElement* right, ch
 
 struct AstElement* makeStatement(struct AstElement* result, struct AstElement* toAppend)
 {
-    if(!result)
+    if(!toAppend)
     {
-        result = checkAlloc(sizeof(*result));
-        result->kind = ekStatements;
-        result->data.statements.count = 0;
-        result->data.statements.statements = 0;
+        toAppend = checkAlloc(sizeof(*result));
+        toAppend->kind = ekStatements;
+        toAppend->data.statements.count = 0;
+        toAppend->data.statements.statements = 0;
     }
-    assert(ekStatements == result->kind);
-    result->data.statements.count++;
-    result->data.statements.statements = realloc(result->data.statements.statements, result->data.statements.count*sizeof(*result->data.statements.statements));
-    result->data.statements.statements[result->data.statements.count-1] = toAppend;
-    return result;
+    assert(ekStatements == toAppend->kind);
+
+    struct AstElement* temp = checkAlloc(sizeof(*result));
+    temp->kind = toAppend->kind;
+    temp->data.statements.count = toAppend->data.statements.count;
+    temp->data.statements.statements = checkAlloc(toAppend->data.statements.count*sizeof(*toAppend->data.statements.statements));
+    for(int i = 0; i < toAppend->data.statements.count; i++)
+        temp->data.statements.statements[i] = toAppend->data.statements.statements[i];
+
+    toAppend->data.statements.count = toAppend->data.statements.count + 1;
+    toAppend->data.statements.statements = realloc(toAppend->data.statements.statements, toAppend->data.statements.count*sizeof(*toAppend->data.statements.statements));
+    toAppend->data.statements.statements[0] = result;
+    for (int i = 0; i < temp->data.statements.count; i++)
+        toAppend->data.statements.statements[i+1] = temp->data.statements.statements[i];
+    free(temp->data.statements.statements);
+    free(temp);
+    return toAppend;
 }
 
 struct AstElement* makeWhile(struct AstElement* cond, struct AstElement* exec)
