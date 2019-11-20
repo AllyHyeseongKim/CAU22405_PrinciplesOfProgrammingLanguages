@@ -194,7 +194,7 @@ static void execStmt(struct ExecEnviron* e, struct AstElement* a)
 
 static void execIf(struct ExecEnviron* e, struct AstElement* a) {
     assert(a);
-    assert(ekStatements == a->kind);
+    assert(ekIf == a->kind);
     struct AstElement* const c = a->data.ifStmt.cond;
     struct AstElement* const if_s = a->data.ifStmt.if_statement;
     struct AstElement* const else_s = a->data.ifStmt.else_statement;

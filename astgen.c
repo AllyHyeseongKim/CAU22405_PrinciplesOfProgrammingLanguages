@@ -89,7 +89,6 @@ struct AstElement* makeCall(char* name, struct AstElement* param)
 
 struct AstElement* makeIfElse(struct AstElement* cond, struct AstElement* ifStmt, struct AstElement* elseStmt) {
     struct AstElement* result = checkAlloc(sizeof(*result));
-    puts("sdfasdf");
     result->kind = ekIf;
     result->data.ifStmt.cond = cond;
     result->data.ifStmt.if_statement = ifStmt;

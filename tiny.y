@@ -85,7 +85,7 @@ parameter_list:
         | identifier_list T_COLON type T_SEMICOLON parameter_list                               {}
 ;
 compound_statement:
-        T_BEGIN statement_list T_END                                                            {$$ = $2}
+        T_BEGIN statement_list T_END                                                            {$$ = $2;}
 ;
 statement_list:                                                                                 {$$=0;}
         | statement_list statement T_SEMICOLON                                                  {$$ = makeStatement($1, $2);}      
@@ -95,17 +95,17 @@ statement:
         | print_statement                                                                       {}
         | procedure_statement                                                                   {} 
         | compound_statement                                                                    {$$ = $1}
-        | if_statement                                                                          {}
+        | if_statement                                                                          {$$ = $1}
         | while_statement                                                                       {$$ = $1}
         | for_statement 
         | T_RETURN expression                                                                   {} 
-        | T_NOP                                                                                 {}
+        | T_NOP                                                                                 {$$ = 0}
 ;
 if_statement:
-        T_IF expression T_COLON statement T_ELSE T_COLON statement                            {puts("sdf");$$ = makeIfElse($2, $4, $7);}
-        | T_IF expression T_COLON statement else_if_statement                                   {puts("1");}
-        | T_IF expression T_COLON statement else_if_statement T_ELSE T_COLON statement          {puts("2");}
-        // | T_IF expression T_COLON statement                                                       {puts("3");}
+        T_IF expression T_COLON statement T_SEMICOLON T_ELSE T_COLON statement                  {$$ = makeIfElse($2, $4, $8)}
+        | T_IF expression T_COLON statement else_if_statement                                   {}
+        | T_IF expression T_COLON statement else_if_statement T_ELSE T_COLON statement          {}
+        | T_IF expression T_COLON statement                                                     {}
 ;
 else_if_statement:
         T_ELIF expression T_COLON statement                                                     {}
