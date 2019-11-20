@@ -82,6 +82,13 @@ struct AstElement* makeStatement(struct AstElement* result, struct AstElement* t
 }
 
 struct AstElement* combineStatement(struct AstElement* result, struct AstElement* toAppend) {
+    if(!result)
+    {
+        result = checkAlloc(sizeof(*result));
+        result->kind = ekStatements;
+        result->data.statements.count = 0;
+        result->data.statements.statements = 0;
+    }
     if(!toAppend)
     {
         toAppend = checkAlloc(sizeof(*result));
