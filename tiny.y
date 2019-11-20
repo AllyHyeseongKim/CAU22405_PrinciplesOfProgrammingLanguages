@@ -38,24 +38,24 @@ void yyerror(const char* s);
 %left T_PLUS T_MINUS
 %left T_MULTIPLE T_DIVIDE
 
-%type<ast> procedure_statement statement compound_statement statement_list while_statement
-%type<ast> term factor simple_expression expression print_statement if_statement else_if_statement
-%type<ival> variable identifier_list standard_type type
+%type<ast> procedure_statement statement compound_statement statement_list while_statement identifier_list declarations
+%type<ast> term factor simple_expression expression print_statement if_statement else_if_statement subprogram_declarations subprogram_declaration
+%type<ival> variable standard_type type
 
 %start program_start
 
 %%
 program_start:
-        | T_MAINPROG T_ID T_SEMICOLON declarations subprogram_declarations compound_statement   { (*(struct AstElement**)astDest) = $6; }
+        | T_MAINPROG T_ID T_SEMICOLON declarations subprogram_declarations compound_statement   { (*(struct AstElement**)astDest) = combineStatement($4, $6); }
 
 ;
 declarations:
-        type identifier_list T_SEMICOLON declarations                                           // 구현 완료                                          
-        |                                                                                        
+        type identifier_list T_SEMICOLON declarations                                           {$$ = combineStatement($2, $4);}                                          
+        |                                                                                       {$$ = 0}
 ;
 identifier_list:
-        T_ID                                                                                    {;$$ = 1; make_id($1, varType, varIndex); }
-        | T_ID T_COMMA identifier_list                                                          {$$ = $3 + 1; make_id($1, varType, varIndex);}
+        T_ID                                                                                    {$$ = makeStatement(makeVariable($1, varType, varIndex), 0)}
+        | T_ID T_COMMA identifier_list                                                          {$$ = makeStatement(makeVariable($1, varType, varIndex), $3)}
 ;
 type:
         standard_type                                                                           {varIndex = 1; varType = (TYPE)$1}

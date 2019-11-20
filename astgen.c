@@ -81,6 +81,27 @@ struct AstElement* makeStatement(struct AstElement* result, struct AstElement* t
     return toAppend;
 }
 
+struct AstElement* combineStatement(struct AstElement* result, struct AstElement* toAppend) {
+    if(!toAppend)
+    {
+        toAppend = checkAlloc(sizeof(*result));
+        toAppend->kind = ekStatements;
+        toAppend->data.statements.count = 0;
+        toAppend->data.statements.statements = 0;
+    }
+    assert(result);
+    assert(ekStatements == result->kind);
+    assert(ekStatements == toAppend->kind);
+
+    int init_size = result->data.statements.count;
+    result->data.statements.count = result->data.statements.count + toAppend->data.statements.count;
+    result->data.statements.statements = realloc(result->data.statements.statements, result->data.statements.count*sizeof(result->data.statements.statements));
+    for(int i = 0; i < toAppend->data.statements.count; i++)
+        result->data.statements.statements[i + init_size] = toAppend->data.statements.statements[i];
+    
+    return result;
+}
+
 struct AstElement* makeWhile(struct AstElement* cond, struct AstElement* exec)
 {
     struct AstElement* result = checkAlloc(sizeof(*result));
@@ -112,5 +133,14 @@ struct AstElement* makeIfElse(struct AstElement* cond, struct AstElement* ifStmt
 struct AstElement* makeNop(){
     struct AstElement* result = checkAlloc(sizeof(*result));
     result->kind = ekNop;
+    return result;
+}
+
+struct AstElement* makeVariable(int name, int type, int index){
+    struct AstElement* result = checkAlloc(sizeof(*result));
+    result->kind = ekVar;
+    result->data.variable.name = name;
+    result->data.variable.type = type;
+    result->data.variable.index = index;
     return result;
 }

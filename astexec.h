@@ -19,6 +19,8 @@ int var_map[10000][2];
 block mem_stack[100][2];
 // std::vector<std::pair<TYPE, block> > mem_stack;
 
+struct AstElement* procedure_map[10000];
+struct AstElement* function_map[10000];
 
 struct AstElement;
 struct ExecEnviron;
