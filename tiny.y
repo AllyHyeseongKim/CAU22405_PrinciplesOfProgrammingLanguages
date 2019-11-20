@@ -1,38 +1,14 @@
 %{
-
-#include <iostream>
-#include <unordered_map>
-#include <vector>
+#include "astgen.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include <utility>
 
 extern int yylex();
 extern int yyparse();
 extern FILE* yyin;
 
-typedef enum {UNKOWN, FLOAT, INT, FUNCTION, PROCEDURE} TYPE;
-typedef int STACK_PLACE;
-typedef int LENTH;
-typedef union {
-        int i;
-        float f;
-} block;
-
-void make_id(std::string var_name, TYPE var_type, int var_index);
-float get_var_val(std::string var_name);
-void st_assign_var(std::string var_name, float val);
-void st_print_val(float num);
-
-std::unordered_map<std::string, std::pair<STACK_PLACE, LENTH> >  var_map;
-std::vector<std::pair<TYPE, block> > mem_stack;
-std::vector<bool> if_label;
-int stack_frame = 0;
-int var_index = 0;
-TYPE var_type;
-int if_bool = 1;
-
-
+int varIndex = 0;
+TYPE varType;
 
 void yyerror(const char* s);
 %}
@@ -44,12 +20,12 @@ void yyerror(const char* s);
         char sval[100];
 }
 
-%token<ival> T_INTEGER
+%token<ival> T_INTEGER T_ID
 %token<fval> T_FLOATING
 
 %token<cval> T_PLUS T_MINUS T_MULTIPLE T_DIVIDE 
 %token T_SMALLER T_EQUAL T_NOT_EQUAL T_ASSIGN T_SMALLER_EQUAL T_LARGER_EQUAL T_LARGER
-%token<sval> T_ID T_INT T_FLOAT T_NONE T_LATTER 
+%token<sval> T_INT T_FLOAT T_NONE T_LATTER 
 %token T_NEWLINE T_QUIT
 %token T_MAINPROG T_FUNCTION T_PROCEDURE T_BEGIN T_END T_IF T_THEN 
 %token T_ELSE T_NOP T_WHILE T_RETURN T_PRINT T_IN T_OPERATOR T_SEMICOLON 
@@ -59,11 +35,12 @@ void yyerror(const char* s);
 %left T_PLUS T_MINUS
 %left T_MULTIPLE T_DIVIDE
 
-%type<fval> term factor simple_expression expression procedure_statement statement
-%type<sval> variable
+%type<fval> procedure_statement statement
+%type<fval> term factor simple_expression expression 
+%type<ival> variable
 %type<ival> identifier_list standard_type type
 
-%start if_statement
+%start program_start
 
 %%
 program_start:
@@ -75,12 +52,12 @@ declarations:
         |                                                                                       {} 
 ;
 identifier_list:
-        T_ID                                                                                    {$$ = 1; make_id($1, var_type, var_index); }
-        | T_ID T_COMMA identifier_list                                                          {$$ = $3 + 1; make_id($1, var_type, var_index);}
+        T_ID                                                                                    {$$ = 1; make_id($1, varType, varIndex); }
+        | T_ID T_COMMA identifier_list                                                          {$$ = $3 + 1; make_id($1, varType, varIndex);}
 ;
 type:
-        standard_type                                                                           {var_index = 1; var_type = (TYPE)$1}
-        | standard_type T_LEFT_BRACKET T_INTEGER T_RIGHT_BRACKET                                {var_index = $3; var_type = (TYPE)$1}
+        standard_type                                                                           {varIndex = 1; varType = (TYPE)$1}
+        | standard_type T_LEFT_BRACKET T_INTEGER T_RIGHT_BRACKET                                {varIndex = $3; varType = (TYPE)$1}
 ;
 standard_type:
         T_INT                                                                                   {$$ = INT}
@@ -113,7 +90,7 @@ statement_list:
         | statement T_SEMICOLON statement_list                                                  {}
 ;
 statement:
-        variable T_ASSIGN expression                                                            {st_assign_var($1, $3);}
+        variable T_ASSIGN expression                                                            {assign_var($1, $3, varIndex);}
         | print_statement                                                                       {}
         | procedure_statement                                                                   {} 
         | compound_statement                                                                    {}
@@ -143,16 +120,14 @@ for_statement:
 ;
 print_statement:
         T_PRINT                                                                                 {}
-        | T_PRINT T_LEFT_PARENTHESIS expression T_RIGHT_PARENTHESIS                             {st_print_val($3);}
+        | T_PRINT T_LEFT_PARENTHESIS expression T_RIGHT_PARENTHESIS                             {print_val($3);}
 ;
 variable:
-        T_ID                                                                                    {strcpy($$, $1); var_index = 0;}
-        | T_ID T_LEFT_BRACKET expression T_RIGHT_BRACKET                                        {strcpy($$, $1); var_index = (int)$3;}
+        T_ID                                                                                    {$$ = $1; varIndex = 0;}
+        | T_ID T_LEFT_BRACKET expression T_RIGHT_BRACKET                                        {$$ = $1; varIndex = (int)$3;}
 ;
 procedure_statement:
-        T_ID T_LEFT_PARENTHESIS actual_parameter_expression T_RIGHT_PARENTHESIS {
-                var_map[$1] = std::make_pair(mem_stack.size() - 1, PROCEDURE);
-        }
+        T_ID T_LEFT_PARENTHESIS actual_parameter_expression T_RIGHT_PARENTHESIS                 {}
 ;
 actual_parameter_expression:
         expression_list                                                                         {}
@@ -186,7 +161,7 @@ term:
 factor: 
         T_INTEGER                                                                               {$$ = $1}
         | T_FLOATING                                                                            {$$ = $1}
-        | variable { $$ = get_var_val($1);}
+        | variable                                                                              {$$ = get_var_val($1, varIndex);}
         | procedure_statement                                                                   {}
         | T_NOT factor                                                                          {$$ = ($1) ? $1 : 0}
         | T_PLUS factor                                                                         {$$ = $2}
@@ -212,32 +187,5 @@ void yyerror(const char* s) {
 	exit(1);
 }
 
-void make_id(std::string var_name, TYPE var_type, int var_index) {
-        var_map[var_name.c_str()] = std::make_pair(mem_stack.size(), var_index);
-        block b = {0};
-        for(int i = 0; i < var_index; i++)
-                mem_stack.push_back(std::make_pair(var_type, b));
-}
 
-float get_var_val(std::string var_name) {
-        if(mem_stack[var_map[var_name].first].first == INT) return (float)mem_stack[var_map[var_name].first + var_index].second.i;
-        else return (float)mem_stack[var_map[var_name].first + var_index].second.f;
-}
-
-void st_assign_var(std::string var_name, float val) {
-        if(!if_label.empty() && !if_label.back()) {
-                if_label.pop_back();
-                return;
-        }
-        if(mem_stack[var_map[var_name].first].first == INT) mem_stack[var_map[var_name].first + var_index].second.i = (int)val;
-        else mem_stack[var_map[var_name].first + var_index].second.f = (float)val;
-}
-
-void st_print_val(float num) {
-        if(!if_label.empty() && !if_label.back()) {
-                if_label.pop_back();
-                return;
-        }
-        printf("%.4f", num);
-}
 

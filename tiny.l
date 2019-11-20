@@ -2,11 +2,12 @@
 
 %{
 #include <stdio.h>
-#include <iostream>
+
 
 #define YY_DECL int yylex()
 
 #include "tiny.tab.h"
+
 
 %}
 
@@ -53,7 +54,12 @@
 "for"                                               {return T_FOR;}
 
 
-[a-zA-Z][a-zA-Z0-9]*                                {strcpy(yylval.sval, yytext);  return T_ID;}
+[a-zA-Z][a-zA-Z0-9]*                                {
+    int res = 0;
+    for(int i = 0; i < strlen(yytext); i++)
+        res += (yytext[0] << 2);
+    res = (res > 0)? res : -res;
+    yylval.ival = res; return T_ID;}
 [0-9]+\.[0-9]+ 	                                    {yylval.fval = atof(yytext); return T_FLOATING;}
 [0-9]+		                                        {yylval.ival = atoi(yytext); return T_INTEGER;}
 .                                                   {return T_NONE;}

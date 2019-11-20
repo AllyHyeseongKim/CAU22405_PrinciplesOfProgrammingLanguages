@@ -6,8 +6,8 @@ tiny.tab.c tiny.tab.h:	tiny.y
 lex.yy.c: tiny.l tiny.tab.h
 	flex tiny.l
 
-tiny: lex.yy.c tiny.tab.c tiny.tab.h
-	g++ -o tiny tiny.tab.c lex.yy.c
+tiny: lex.yy.c tiny.tab.c tiny.tab.h astexec.h astgen.h
+	gcc -o tiny tiny.tab.c lex.yy.c astexec.c astgen.c
 
 clean:
 	rm tiny tiny.tab.c lex.yy.c tiny.tab.h
