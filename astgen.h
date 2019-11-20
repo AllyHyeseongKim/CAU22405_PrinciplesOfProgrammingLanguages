@@ -8,8 +8,7 @@ struct AstElement
     union
     {
         float val;
-        int name;
-        int index;
+        int name[2]; // name, index
         struct
         {
             struct AstElement *left, *right;
@@ -33,7 +32,7 @@ struct AstElement
         } whileStmt;
         struct
         {
-            int name;
+            char* name;
             struct AstElement* param;
         }call;
     } data;
@@ -45,5 +44,5 @@ struct AstElement* makeExpByName(int name, int index);
 struct AstElement* makeExp(struct AstElement* left, struct AstElement* right, char op);
 struct AstElement* makeStatement(struct AstElement* dest, struct AstElement* toAppend);
 struct AstElement* makeWhile(struct AstElement* cond, struct AstElement* exec);
-struct AstElement* makeCall(int name, struct AstElement* param);
+struct AstElement* makeCall(char* name, struct AstElement* param);
 #endif

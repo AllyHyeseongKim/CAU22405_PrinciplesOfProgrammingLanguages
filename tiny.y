@@ -3,6 +3,7 @@
 #include "astexec.h"
 #include <stdio.h>
 #include <stdlib.h>
+#define YYPARSE_PARAM astDest
 
 extern int yylex();
 extern int yyparse();
@@ -19,6 +20,7 @@ void yyerror(const char* s);
 	float fval;
         char cval;
         char sval[100];
+        struct AstElement* ast;
 }
 
 %token<ival> T_INTEGER T_ID
@@ -36,16 +38,15 @@ void yyerror(const char* s);
 %left T_PLUS T_MINUS
 %left T_MULTIPLE T_DIVIDE
 
-%type<fval> procedure_statement statement
-%type<fval> term factor simple_expression expression 
-%type<ival> variable
-%type<ival> identifier_list standard_type type
+%type<ast> procedure_statement statement compound_statement statement_list while_statement
+%type<ast> term factor simple_expression expression print_statement
+%type<ival> variable identifier_list standard_type type
 
 %start program_start
 
 %%
 program_start:
-        | T_MAINPROG T_ID T_SEMICOLON declarations subprogram_declarations compound_statement   {}
+        | T_MAINPROG T_ID T_SEMICOLON declarations subprogram_declarations compound_statement T_SEMICOLON   { (*(struct AstElement**)astDest) = $6; }
 
 ;
 declarations:
@@ -53,7 +54,7 @@ declarations:
         |                                                                                       {} 
 ;
 identifier_list:
-        T_ID                                                                                    {$$ = 1; make_id($1, varType, varIndex); }
+        T_ID                                                                                    {;$$ = 1; make_id($1, varType, varIndex); }
         | T_ID T_COMMA identifier_list                                                          {$$ = $3 + 1; make_id($1, varType, varIndex);}
 ;
 type:
@@ -84,19 +85,18 @@ parameter_list:
         | identifier_list T_COLON type T_SEMICOLON parameter_list                               {}
 ;
 compound_statement:
-        T_BEGIN statement_list T_END                                                            {}
+        T_BEGIN statement_list T_END                                                            {$$ = $2}
 ;
-statement_list:
-        statement                                                                               {}
-        | statement T_SEMICOLON statement_list                                                  {}
+statement_list:                                                                                 {$$=0;}
+        | statement_list statement T_SEMICOLON                                                  {$$ = makeStatement($1, $2);}      
 ;
 statement:
-        variable T_ASSIGN expression                                                            {assign_var($1, $3, varIndex);}
+        variable T_ASSIGN expression                                                            {$$ = makeAssignment($1, varIndex, $3);}
         | print_statement                                                                       {}
         | procedure_statement                                                                   {} 
-        | compound_statement                                                                    {}
+        | compound_statement                                                                    {$$ = $1}
         | if_statement                                                                          {}
-        | while_statement                                                                       {}
+        | while_statement                                                                       {$$ = $1}
         | for_statement 
         | T_RETURN expression                                                                   {} 
         | T_NOP                                                                                 {}
@@ -112,7 +112,7 @@ else_if_statement:
         | T_ELIF expression T_COLON statement else_if_statement                                 {}
 ;
 while_statement:
-         T_WHILE expression T_COLON statement                                                   {}
+         T_WHILE expression T_COLON statement                                                   {$$ = makeWhile($2, $4);}
         | T_WHILE expression T_COLON statement T_ELSE T_COLON statement                         {}
 ;
 for_statement:
@@ -121,11 +121,11 @@ for_statement:
 ;
 print_statement:
         T_PRINT                                                                                 {}
-        | T_PRINT T_LEFT_PARENTHESIS expression T_RIGHT_PARENTHESIS                             {print_val($3);}
+        | T_PRINT T_LEFT_PARENTHESIS expression T_RIGHT_PARENTHESIS                             {$$ = makeCall("print", $3);}
 ;
 variable:
         T_ID                                                                                    {$$ = $1; varIndex = 0;}
-        | T_ID T_LEFT_BRACKET expression T_RIGHT_BRACKET                                        {$$ = $1; varIndex = (int)$3;}
+        | T_ID T_LEFT_BRACKET expression T_RIGHT_BRACKET                                        {$$ = $1; varIndex = (int)$3->data.val;}
 ;
 procedure_statement:
         T_ID T_LEFT_PARENTHESIS actual_parameter_expression T_RIGHT_PARENTHESIS                 {}
@@ -140,46 +140,48 @@ expression_list:
 ;
 expression:
         simple_expression                                                                       {$$ = $1}
-        | simple_expression T_LARGER simple_expression                                          {$$ = ($1 > $3)? 1: 0}
-        | simple_expression T_LARGER_EQUAL simple_expression                                    {$$ = ($1 >= $3)? 1: 0}
-        | simple_expression T_SMALLER simple_expression                                         {$$ = ($1 < $3)? 1: 0}
-        | simple_expression T_SMALLER_EQUAL simple_expression                                   {$$ = ($1 <= $3)? 1: 0}
-        | simple_expression T_EQUAL simple_expression                                           {$$ = ($1 == $3)? 1: 0}
-        | simple_expression T_NOT_EQUAL simple_expression                                       {$$ = ($1 != $3)? 1: 0}
+        | simple_expression T_LARGER simple_expression                                          {$$ = makeExp($1, $3, '>');}
+        | simple_expression T_LARGER_EQUAL simple_expression                                    // {$$ = ($1 >= $3)? 1: 0}
+        | simple_expression T_SMALLER simple_expression                                         {$$ = makeExp($1, $3, '<');}
+        | simple_expression T_SMALLER_EQUAL simple_expression                                   // {$$ = ($1 <= $3)? 1: 0}
+        | simple_expression T_EQUAL simple_expression                                           // {$$ = ($1 == $3)? 1: 0}
+        | simple_expression T_NOT_EQUAL simple_expression                                       // {$$ = ($1 != $3)? 1: 0}
         | simple_expression T_IN simple_expression                                              {}
 ;
 simple_expression:
         term                                                                                    {$$ = $1;}
-        | term T_PLUS simple_expression                                                         {$$ = $1 + $3}
-        | term T_MINUS simple_expression                                                        {$$ = $1 - $3;}
+        | term T_PLUS simple_expression                                                         {$$ = makeExp($1, $3, '+');}
+        | term T_MINUS simple_expression                                                        {$$ = makeExp($1, $3, '-');}
 ;
 /* NOTE THE ABOVE GRAMMAR HAS BEEN CHANGED */
 term:
         factor                                                                                  {$$ = $1}
-        | factor T_MULTIPLE term                                                                {$$ = $1 * $3}
-        | factor T_DIVIDE term                                                                  {$$ = $1 / $3}
+        | factor T_MULTIPLE term                                                                {$$ = makeExp($1, $3, '*');}
+        | factor T_DIVIDE term                                                                  {$$ = makeExp($1, $3, '/');}
 ;
 factor: 
-        T_INTEGER                                                                               {$$ = $1}
-        | T_FLOATING                                                                            {$$ = $1}
-        | variable                                                                              {$$ = get_var_val($1, varIndex);}
+        T_INTEGER                                                                               {$$ = makeExpByNum($1)}
+        | T_FLOATING                                                                            {$$ = makeExpByNum($1)}
+        | variable                                                                              {$$ = makeExpByName($1, varIndex);}
         | procedure_statement                                                                   {}
-        | T_NOT factor                                                                          {$$ = ($1) ? $1 : 0}
-        | T_PLUS factor                                                                         {$$ = $2}
-        | T_MINUS factor                                                                        {$$ = -$2}
+        | T_NOT factor                                                                         // {$$ = ($1) ? $1 : 0}
+        | T_PLUS factor                                                                        // {$$ = $2}
+        | T_MINUS factor                                                                       // {$$ = -$2}
 ;
 
 %%
 
 int main(int argc, char* argv[]) {
         
-
 	yyin = fopen("test.tiny", "r");
+        struct AstElement *a = 0;
 
 	while(!feof(yyin)) {
-		yyparse();
+		yyparse(&a);
 	}
-
+        struct ExecEnviron* e = createEnv();
+        execAst(e, a);
+        freeEnv(e);
 	return 0;
 }
 

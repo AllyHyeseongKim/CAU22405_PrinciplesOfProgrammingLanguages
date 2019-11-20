@@ -3,14 +3,18 @@
 #include <stdlib.h>
 #include <assert.h>
 #include <stdio.h>
+#include <string.h>
+
+
+
+int stackSize = 0;
 
 
 void make_id(int var_name, TYPE varType, int varIndex) {
-        var_map[var_name][0] = stackSize;
-        var_map[var_name][1] = varIndex;
         for(int i = 0; i < varIndex; i++) {
+                var_map[var_name + i][0] = stackSize;
+                var_map[var_name + i][1] = varIndex - i;
                 mem_stack[stackSize][0].i = varType;
-                mem_stack[stackSize][0].f = 0;
                 stackSize++;
         }
 }
@@ -112,7 +116,7 @@ static float execTermExpression(struct ExecEnviron* e, struct AstElement* a)
         if(ekId == a->kind)
         {
             assert(e);
-            return get_var_val(a->data.name, a->data.index);
+            return get_var_val(a->data.name[0], a->data.name[1]);
         }
     }
     fprintf(stderr, "OOPS: tried to get the value of a non-expression(%d)\n", a->kind);

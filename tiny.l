@@ -59,7 +59,7 @@
     for(int i = 0; i < strlen(yytext); i++)
         res += (yytext[0] << 2);
     res = (res > 0)? res : -res;
-    yylval.ival = res; return T_ID;}
+    yylval.ival = (res % 10000); return T_ID;}
 [0-9]+\.[0-9]+ 	                                    {yylval.fval = atof(yytext); return T_FLOATING;}
 [0-9]+		                                        {yylval.ival = atoi(yytext); return T_INTEGER;}
 .                                                   {return T_NONE;}

@@ -1,7 +1,10 @@
 mainprog main;
-int asf, basdfasdf;
+int a;
 begin
-asf = 1;
-basdfasdf = 2;
-print(basdfasdf + asf)
-end
+a = 1;
+while a < 10:
+begin
+    a = a + 1;
+    print(a);
+end;
+end;

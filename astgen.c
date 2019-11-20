@@ -13,6 +13,7 @@ static void* checkAlloc(size_t sz)
         fprintf(stderr, "alloc failed\n");
         exit(1);
     }
+    return result;
 }
 
 struct AstElement* makeAssignment(int name, int index, struct AstElement* val)
@@ -37,8 +38,8 @@ struct AstElement* makeExpByName(int name, int index)
 {
     struct AstElement* result = checkAlloc(sizeof(*result));
     result->kind = ekId;
-    result->data.name = name;
-    result->data.index = index;
+    result->data.name[0] = name;
+    result->data.name[1] = index;
     return result;
 }
 
@@ -77,7 +78,7 @@ struct AstElement* makeWhile(struct AstElement* cond, struct AstElement* exec)
     return result;
 }
 
-struct AstElement* makeCall(int name, struct AstElement* param)
+struct AstElement* makeCall(char* name, struct AstElement* param)
 {
     struct AstElement* result = checkAlloc(sizeof(*result));
     result->kind = ekCall;
