@@ -1,6 +1,16 @@
 mainprog main;
-int[2] a;
+int a;
+
+    procedure pro(int: a);
+    int a;
+    begin
+        a = 2;
+        print(a)
+    end
+
+
 begin
-    a[1] = 1;
-    print(a[1])
+    a = 1;
+    pro(1);
+    print(a)
 end

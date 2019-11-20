@@ -48,6 +48,7 @@ static void execStmt(struct ExecEnviron* e, struct AstElement* a);
 static void execIf(struct ExecEnviron* e, struct AstElement* a);
 static void execNop(struct ExecEnviron* e, struct AstElement* a);
 static void execVar(struct ExecEnviron* e, struct AstElement* a);
+static void execProcedure(struct ExecEnviron* e, struct AstElement* a);
 
 /* Lookup Array for AST elements which yields values */
 static float(*valExecs[])(struct ExecEnviron* e, struct AstElement* a) =
@@ -55,6 +56,7 @@ static float(*valExecs[])(struct ExecEnviron* e, struct AstElement* a) =
     execTermExpression,
     execTermExpression,
     execBinExp,
+    NULL,
     NULL,
     NULL,
     NULL,
@@ -76,7 +78,8 @@ static void(*runExecs[])(struct ExecEnviron* e, struct AstElement* a) =
     execStmt,
     execIf,
     execNop,
-    execVar
+    execVar,
+    execProcedure
 };
 
 /* Dispatches any value expression */
@@ -230,6 +233,31 @@ static void execVar(struct ExecEnviron* e, struct AstElement* a) {
     assert(a);
     assert(ekVar == a->kind);
     make_id(a->data.variable.name, a->data.variable.type, a->data.variable.index);
+}
+
+static void execProcedure(struct ExecEnviron* e, struct AstElement* a) {
+    assert(a);
+    assert(ekProcedure == a->kind);
+
+    int stack_frame = stackSize;
+    int *temp_var_map = malloc(sizeof(var_map));
+    if (!temp_var_map) {
+        fprintf(stderr, "No memory space for var_map\n");
+        exit(1);
+    }
+    memcpy(temp_var_map, var_map, sizeof(var_map));
+
+    struct AstElement* stament = sub_program_map[a->data.procedure.name];
+    int i;
+
+    for(i = 0; i < stament->data.statements.count; i++)
+    {
+        dispatchStatement(e, stament->data.statements.statements[i]);
+    }
+
+    stackSize = stack_frame;
+    memcpy(var_map, temp_var_map, sizeof(var_map));
+    free(temp_var_map);
 }
 
 void execAst(struct ExecEnviron* e, struct AstElement* a)

@@ -151,3 +151,11 @@ struct AstElement* makeVariable(int name, int type, int index){
     result->data.variable.index = index;
     return result;
 }
+
+struct AstElement* makeProcedure(int name, struct AstElement* parameter) {
+    struct AstElement* result = checkAlloc(sizeof(*result));
+    result->kind = ekProcedure;
+    result->data.procedure.name = name;
+    result->data.procedure.parameter = parameter;
+    return result;
+}

@@ -4,7 +4,7 @@
 
 struct AstElement
 {
-    enum {ekId, ekNumber, ekBinExpression, ekAssignment, ekWhile, ekCall, ekStatements, ekIf, ekNop, ekVar, ekLastElement} kind;
+    enum {ekId, ekNumber, ekBinExpression, ekAssignment, ekWhile, ekCall, ekStatements, ekIf, ekNop, ekVar, ekProcedure, ekLastElement} kind;
     union
     {
         float val;
@@ -47,6 +47,12 @@ struct AstElement
             int type;
             int index;
         } variable;
+        struct 
+        {
+            int name;
+            struct AstElement* parameter;
+        } procedure;
+        
     } data;
 };
 
@@ -61,4 +67,5 @@ struct AstElement* makeCall(char* name, struct AstElement* param);
 struct AstElement* makeIfElse(struct AstElement* cond, struct AstElement* ifStmt, struct AstElement* elseStmt);
 struct AstElement* makeNop();
 struct AstElement* makeVariable(int name, int type, int index);
+struct AstElement* makeProcedure(int name, struct AstElement* parameter);
 #endif

@@ -10,7 +10,9 @@ extern int yyparse();
 extern FILE* yyin;
 
 int varIndex = 0;
+int argSize = 0;
 TYPE varType;
+int subName=0;
 
 void yyerror(const char* s);
 %}
@@ -38,7 +40,8 @@ void yyerror(const char* s);
 %left T_PLUS T_MINUS
 %left T_MULTIPLE T_DIVIDE
 
-%type<ast> procedure_statement statement compound_statement statement_list while_statement identifier_list declarations
+%type<ast> parameter_list actual_parameter_expression
+%type<ast> procedure_statement statement compound_statement statement_list while_statement identifier_list declarations arguments subprogram_head
 %type<ast> term factor simple_expression expression print_statement if_statement else_if_statement subprogram_declarations subprogram_declaration
 %type<ival> variable standard_type type
 
@@ -46,7 +49,7 @@ void yyerror(const char* s);
 
 %%
 program_start:
-        | T_MAINPROG T_ID T_SEMICOLON declarations subprogram_declarations compound_statement   { (*(struct AstElement**)astDest) = combineStatement($4, $6); }
+        | T_MAINPROG T_ID T_SEMICOLON declarations subprogram_declarations compound_statement   { (*(struct AstElement**)astDest) = combineStatement($4, $6);}
 
 ;
 declarations:
@@ -54,8 +57,8 @@ declarations:
         |                                                                                       {$$ = 0}
 ;
 identifier_list:
-        T_ID                                                                                    {$$ = makeStatement(makeVariable($1, varType, varIndex), 0)}
-        | T_ID T_COMMA identifier_list                                                          {$$ = makeStatement(makeVariable($1, varType, varIndex), $3)}
+        T_ID                                                                                    {$$ = makeStatement(makeVariable($1, varType, varIndex), 0); argSize += varIndex;}
+        | T_ID T_COMMA identifier_list                                                          {$$ = makeStatement(makeVariable($1, varType, varIndex), $3); argSize += varIndex;}
 ;
 type:
         standard_type                                                                           {varIndex = 1; varType = (TYPE)$1}
@@ -70,19 +73,19 @@ subprogram_declarations:
         | 
 ;
 subprogram_declaration:
-        subprogram_head declarations compound_statement                                         {}
+        subprogram_head declarations compound_statement                                         {sub_program_map[subName] = combineStatement($2, $3)}
 ;
 subprogram_head:
         T_FUNCTION T_ID arguments T_COLON standard_type T_SEMICOLON                             {}
-        | T_PROCEDURE T_ID arguments T_SEMICOLON                                                {}
+        | T_PROCEDURE T_ID arguments T_SEMICOLON                                                {$$ = makeStatement(makeVariable($2, PROCEDURE, argSize), $3); varType=PROCEDURE; subName=$2;}
 ;
 arguments:
-        T_LEFT_PARENTHESIS parameter_list T_RIGHT_PARENTHESIS                                   {}
-        |                                                                                       {}
+        T_LEFT_PARENTHESIS parameter_list T_RIGHT_PARENTHESIS                                   {$$ = $2}
+        |                                                                                       {$$ = 0; argSize=0;}
 ;
 parameter_list:
-        identifier_list T_COLON type                                                            {}
-        | identifier_list T_COLON type T_SEMICOLON parameter_list                               {}
+        type T_COLON identifier_list                                                            {$$ = $3}
+        | type T_COLON identifier_list T_SEMICOLON parameter_list                               {$$ = combineStatement($3, $5);}
 ;
 compound_statement:
         T_BEGIN statement_list T_END                                                            {$$ = $2;}
@@ -94,7 +97,7 @@ statement_list:
 statement:
         variable T_ASSIGN expression                                                            {$$ = makeAssignment($1, varIndex, $3);}
         | print_statement                                                                       {}
-        | procedure_statement                                                                   {} 
+        | procedure_statement                                                                   {$$ = $1} 
         | compound_statement                                                                    {$$ = $1}
         | if_statement                                                                          {$$ = $1}
         | while_statement                                                                       {$$ = $1}
@@ -129,11 +132,11 @@ variable:
         | T_ID T_LEFT_BRACKET expression T_RIGHT_BRACKET                                        {$$ = $1; varIndex = (int)$3->data.val;}
 ;
 procedure_statement:
-        T_ID T_LEFT_PARENTHESIS actual_parameter_expression T_RIGHT_PARENTHESIS                 {}
+        T_ID T_LEFT_PARENTHESIS actual_parameter_expression T_RIGHT_PARENTHESIS                 {$$ = makeProcedure($1, $3)}
 ;
 actual_parameter_expression:
-        expression_list                                                                         {}
-        |                                                                                       {}
+        expression_list                                                                         {$$ = 0}
+        |                                                                                       {$$ = 0}
 ;
 expression_list:
         expression                                                                              {}
