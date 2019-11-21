@@ -43,6 +43,8 @@ void yyerror(const char* s);
 %left T_PLUS T_MINUS
 %left T_MULTIPLE T_DIVIDE
 
+
+%type<ast> match_else_if_statement
 %type<ast> parameter_list actual_parameter_expression expression_list for_condition other_statment match_statement unmatch_statement
 %type<ast> procedure_statement statement compound_statement statement_list identifier_list declarations arguments subprogram_head
 %type<ast> term factor simple_expression expression print_statement subprogram_declarations subprogram_declaration
@@ -105,23 +107,30 @@ statement:
 match_statement:
         other_statment                                                                          {$$ = $1}
         | T_IF expression T_COLON match_statement T_ELSE T_COLON match_statement                {$$ = makeIfElse($2, $4, $7)} 
+        | T_IF expression T_COLON match_else_if_statement T_ELSE T_COLON match_statement        {$$ = makeIfElse($2, $4, $7)} 
         | T_WHILE expression T_COLON match_statement T_ELSE T_COLON match_statement             {$$ = makeIfElse($2, makeWhile($2, $4), $7)}
         | T_FOR for_condition T_COLON match_statement T_ELSE T_COLON match_statement            {$$ = makeIfElse($2, makeFor($2, $4), $7)}
 ;
 unmatch_statement:
         T_IF expression T_COLON statement                                                       {$$ = makeIfElse($2, $4, makeNop())}
         | T_IF expression T_COLON match_statement T_ELSE T_COLON unmatch_statement              {$$ = makeIfElse($2, $4, $7)}
+        | T_IF expression T_COLON match_else_if_statement T_ELSE T_COLON unmatch_statement      {$$ = makeIfElse($2, $4, $7)}
         | T_WHILE expression T_COLON statement                                                  {$$ = makeWhile($2, $4);}
         | T_FOR for_condition T_COLON statement                                                 {$$ = makeFor($2, $4)}
 ;
+match_else_if_statement:
+        T_ELIF expression T_COLON match_statement T_ELSE T_COLON match_statement              {$$ = makeIfElse($2, $4, $7)}
+        | T_ELIF expression T_COLON match_else_if_statement T_ELSE T_COLON match_statement      {$$ = makeIfElse($2, $4, $7)}
+;
+
 other_statment:
         variable T_ASSIGN expression                                                            {$$ = makeAssignment($1, varIndex, $3);}
         | print_statement                                                                       {$$ = $1}
         | procedure_statement                                                                   {$$ = $1} 
         | compound_statement                                                                    {$$ = $1}
-        // | if_statement                                                                          {$$ = $1}
-        // | while_statement                                                                       {$$ = $1}
-        // | for_statement                                                                         {$$ = $1}
+        // | if_statement                                                                       {$$ = $1}
+        // | while_statement                                                                    {$$ = $1}
+        // | for_statement                                                                      {$$ = $1}
         | T_RETURN expression                                                                   {$$ = makeAssignmentByAddress($2);} 
         | T_NOP                                                                                 {$$ = makeNop()}
 ;
@@ -152,7 +161,7 @@ print_statement:
 ;
 variable:
         T_ID                                                                                    {$$ = $1; varIndex = 0;}
-        | T_ID T_LEFT_BRACKET expression T_RIGHT_BRACKET                                        {$$ = $1; }
+        | T_ID T_LEFT_BRACKET expression T_RIGHT_BRACKET                                        {$$ = $1; varIndex = 0;}
 ;
 procedure_statement:
         T_ID T_LEFT_PARENTHESIS actual_parameter_expression T_RIGHT_PARENTHESIS                 {$$ = makeProcedure($1, $3)}
@@ -186,7 +195,7 @@ term:
         | factor T_DIVIDE term                                                                  {$$ = makeExp($1, $3, '/');}
 ;
 factor: 
-        T_INTEGER                                                                               {$$ = makeExpByNum($1); varIndex = $1;}
+        T_INTEGER                                                                               {$$ = makeExpByNum($1);}
         | T_FLOATING                                                                            {$$ = makeExpByNum($1)}
         | variable                                                                              {$$ = makeExpByName($1, varIndex);}
         | procedure_statement                                                                   {$$ = makeExpByAddress(makeStatement($1, 0));}

@@ -1,14 +1,10 @@
 mainprog main;
-int[10] a;
-int b;
+int a;
 begin
-    a[0] = 0;
-    a[1] = 1;
-    a[2] = 2;
-    a[3] = 3;
-    a[4] = 4;
-    a[5] = 5;
-    a[6] = 6;
-    for b in a:
-        print(b)
+    a = 1;
+    if a == 1:
+        if a == 1:
+            print(1)
+    else:
+        print(2)
 end

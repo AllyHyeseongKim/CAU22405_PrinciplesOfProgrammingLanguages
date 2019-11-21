@@ -10,4 +10,4 @@ tiny: lex.yy.c tiny.tab.c tiny.tab.h astexec.h astgen.h
 	gcc -o tiny tiny.tab.c lex.yy.c astexec.c astgen.c
 
 clean:
-	rm tiny tiny.tab.c lex.yy.c tiny.tab.h
+	rm tiny tiny.tab.c lex.yy.c tiny.tab.h tiny.output
