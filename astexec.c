@@ -49,6 +49,7 @@ static void execNop(struct ExecEnviron* e, struct AstElement* a);
 static void execVar(struct ExecEnviron* e, struct AstElement* a);
 static void execProcedure(struct ExecEnviron* e, struct AstElement* a);
 static void execAssignAddress(struct ExecEnviron* e, struct AstElement* a);
+static void execCompoundStmt(struct ExecEnviron* e, struct AstElement* a);
 
 
 /* Lookup Array for AST elements which yields values */
@@ -66,6 +67,7 @@ static float(*valExecs[])(struct ExecEnviron* e, struct AstElement* a) =
     NULL,
     NULL,
     execBinExp,
+    NULL,
     NULL
 };
 
@@ -84,7 +86,8 @@ static void(*runExecs[])(struct ExecEnviron* e, struct AstElement* a) =
     execVar,
     execProcedure,
     NULL,
-    execAssignAddress
+    execAssignAddress,
+    execCompoundStmt
 };
 
 /* Dispatches any value expression */
@@ -244,18 +247,7 @@ static void execProcedure(struct ExecEnviron* e, struct AstElement* a) {
     assert(a);
     assert(ekProcedure == a->kind);
 
-    stack_frame = stackSize;
-    int var_map_size = sizeof(int)*HASHSIZE*2;
-    int *temp_var_map = malloc(var_map_size);
-    if (!temp_var_map) {
-        fprintf(stderr, "No memory space for var_map\n");
-        exit(1);
-    }
-    memcpy(temp_var_map, var_map, var_map_size);
-
-    struct AstElement* stament = sub_program_map[a->data.procedure.name];
-    int i;
-
+  
     make_id(a->data.procedure.name, PROCEDURE, 1);
     for(int i = 0; i < a->data.procedure.parameter->data.parameter.count; i++) {
         mem_stack[var_map[a->data.procedure.name][0] + i + 1][1]
@@ -264,9 +256,7 @@ static void execProcedure(struct ExecEnviron* e, struct AstElement* a) {
 
     execStmt(e, sub_program_map[a->data.procedure.name]);
 
-    stackSize = stack_frame;
-    memcpy(var_map, temp_var_map, var_map_size);
-    free(temp_var_map);
+   
 }
 
 static void execAssignAddress(struct ExecEnviron* e, struct AstElement* a) {
@@ -278,6 +268,26 @@ static void execAssignAddress(struct ExecEnviron* e, struct AstElement* a) {
 
     mem_stack[address][1] = dispatchExpression(e, expression);
     mem_stack[address][0] = FLOAT;
+}
+
+static void execCompoundStmt(struct ExecEnviron* e, struct AstElement* a) {
+    assert(a);
+    assert(ekCompound == a->kind);
+
+    stack_frame = stackSize;
+    int var_map_size = sizeof(int)*HASHSIZE*2;
+    int *temp_var_map = malloc(var_map_size);
+    if (!temp_var_map) {
+        fprintf(stderr, "No memory space for var_map\n");
+        exit(1);
+    }
+    memcpy(temp_var_map, var_map, var_map_size);
+
+    execStmt(e, a->data.compound.statement);
+
+    stackSize = stack_frame;
+    memcpy(var_map, temp_var_map, var_map_size);
+    free(temp_var_map);
 }
 
 void execAst(struct ExecEnviron* e, struct AstElement* a)

@@ -76,7 +76,8 @@ subprogram_declarations:
         | 
 ;
 subprogram_declaration:
-        subprogram_head declarations compound_statement                                         {sub_program_map[subName] = combineStatement($1, combineStatement($2, $3))}
+        subprogram_head declarations compound_statement                                         {sub_program_map[subName] = 
+        makeStatement(makeCompoundStmt(combineStatement($1, combineStatement($2, $3))), 0)}
 ;
 subprogram_head:
         T_FUNCTION T_ID arguments T_COLON standard_type T_SEMICOLON                             {$$ = $3; varType=FUNCTION; subName=$2;}
@@ -91,7 +92,7 @@ parameter_list:
         | type T_COLON identifier_list T_SEMICOLON parameter_list                               {$$ = combineStatement($3, $5);}
 ;
 compound_statement:
-        T_BEGIN statement_list T_END                                                            {$$ = $2;}
+        T_BEGIN statement_list T_END                                                            {$$ = makeStatement(makeCompoundStmt($2), 0)}
 ;
 statement_list:
         statement                                                                               {$$ = makeStatement($1, 0);}
@@ -194,7 +195,6 @@ int main(int argc, char* argv[]) {
 
 void yyerror(const char* s) {
 	fprintf(stderr, "Parse error: %s\n", s);
-	exit(1);
 }
 
 

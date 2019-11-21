@@ -1,11 +1,14 @@
 mainprog main;
-
+int a;
     procedure pro(int: a, b);
     begin
-        print(b)
+        print(a);
+        return a
     end
 
 
 begin
-    pro(2, 1)
+    a = 2;
+    print(a);
+    print(pro(1, 1))
 end

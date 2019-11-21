@@ -207,3 +207,12 @@ struct AstElement* makeAssignmentByAddress(int address, struct AstElement* val) 
     return result;
 
 }
+
+struct AstElement* makeCompoundStmt(struct AstElement* stmt) {
+    assert(stmt);
+    assert(ekStatements == stmt->kind);
+    struct AstElement* result = checkAlloc(sizeof(*result));
+    result->data.compound.statement = stmt;
+    result->kind = ekCompound;
+    return result;
+}
