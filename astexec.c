@@ -6,27 +6,26 @@
 #include <string.h>
 
 
-
 int stackSize = 0;
-
+int stack_frame = 0;
 
 void make_id(int var_name, TYPE varType, int varIndex) {
         for(int i = 0; i < varIndex; i++) {
                 var_map[var_name + i][0] = stackSize;
                 var_map[var_name + i][1] = varIndex - i;
-                mem_stack[stackSize][0].i = varType;
+                mem_stack[stackSize][0] = varType;
                 stackSize++;
         }
 }
 
 float get_var_val(int var_name, int varIndex) {
-        if(mem_stack[var_map[var_name][0]][0].i == INT) return (float)mem_stack[var_map[var_name][0] + varIndex][1].i;
-        else return (float)mem_stack[var_map[var_name][0] + varIndex][1].f;
+        if(mem_stack[var_map[var_name][0]][0] == INT) return mem_stack[var_map[var_name][0] + varIndex][1];
+        else return mem_stack[var_map[var_name][0] + varIndex][1];
 }
 
 void assign_var(int var_name, float val, int varIndex) {
-        if(mem_stack[var_map[var_name][0]][0].i == INT) mem_stack[var_map[var_name][0] + varIndex][1].i = (int)val;
-        else mem_stack[var_map[var_name][0] + varIndex][1].f = (float)val;
+        if(mem_stack[var_map[var_name][0]][0] == INT) mem_stack[var_map[var_name][0] + varIndex][1] = (int)val;
+        else mem_stack[var_map[var_name][0] + varIndex][1] = (float)val;
 }
 
 void print_val(float num) {
@@ -49,6 +48,8 @@ static void execIf(struct ExecEnviron* e, struct AstElement* a);
 static void execNop(struct ExecEnviron* e, struct AstElement* a);
 static void execVar(struct ExecEnviron* e, struct AstElement* a);
 static void execProcedure(struct ExecEnviron* e, struct AstElement* a);
+static void execAssignAddress(struct ExecEnviron* e, struct AstElement* a);
+
 
 /* Lookup Array for AST elements which yields values */
 static float(*valExecs[])(struct ExecEnviron* e, struct AstElement* a) =
@@ -63,6 +64,8 @@ static float(*valExecs[])(struct ExecEnviron* e, struct AstElement* a) =
     NULL,
     NULL,
     NULL,
+    NULL,
+    execBinExp,
     NULL
 };
 
@@ -79,7 +82,9 @@ static void(*runExecs[])(struct ExecEnviron* e, struct AstElement* a) =
     execIf,
     execNop,
     execVar,
-    execProcedure
+    execProcedure,
+    NULL,
+    execAssignAddress
 };
 
 /* Dispatches any value expression */
@@ -239,7 +244,7 @@ static void execProcedure(struct ExecEnviron* e, struct AstElement* a) {
     assert(a);
     assert(ekProcedure == a->kind);
 
-    int stack_frame = stackSize;
+    stack_frame = stackSize;
     int var_map_size = sizeof(int)*HASHSIZE*2;
     int *temp_var_map = malloc(var_map_size);
     if (!temp_var_map) {
@@ -251,14 +256,28 @@ static void execProcedure(struct ExecEnviron* e, struct AstElement* a) {
     struct AstElement* stament = sub_program_map[a->data.procedure.name];
     int i;
 
-    for(i = 0; i < stament->data.statements.count; i++)
-    {
-        dispatchStatement(e, stament->data.statements.statements[i]);
+    make_id(a->data.procedure.name, PROCEDURE, 1);
+    for(int i = 0; i < a->data.procedure.parameter->data.parameter.count; i++) {
+        mem_stack[var_map[a->data.procedure.name][0] + i + 1][1]
+        = dispatchExpression(e, a->data.procedure.parameter->data.parameter.expressions[i]);
     }
+
+    execStmt(e, sub_program_map[a->data.procedure.name]);
 
     stackSize = stack_frame;
     memcpy(var_map, temp_var_map, var_map_size);
     free(temp_var_map);
+}
+
+static void execAssignAddress(struct ExecEnviron* e, struct AstElement* a) {
+    assert(a);
+    assert(ekAssignAddress == a->kind);
+    assert(e);
+    struct AstElement* expression = a->data.assignment_by_address.expression;
+    int address = a->data.assignment_by_address.address;
+
+    mem_stack[address][1] = dispatchExpression(e, expression);
+    mem_stack[address][0] = FLOAT;
 }
 
 void execAst(struct ExecEnviron* e, struct AstElement* a)

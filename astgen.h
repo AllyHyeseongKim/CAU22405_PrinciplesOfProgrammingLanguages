@@ -4,7 +4,8 @@
 
 struct AstElement
 {
-    enum {ekId, ekNumber, ekBinExpression, ekAssignment, ekWhile, ekCall, ekStatements, ekIf, ekNop, ekVar, ekProcedure, ekLastElement} kind;
+    enum {ekId, ekNumber, ekBinExpression, ekAssignment, ekWhile, ekCall, ekStatements, ekIf, ekNop, ekVar, ekProcedure, 
+    ekParameter, ekAssignAddress, ekLastElement} kind;
     union
     {
         float val;
@@ -52,6 +53,16 @@ struct AstElement
             int name;
             struct AstElement* parameter;
         } procedure;
+        struct
+        {
+            int count;
+            struct AstElement** expressions;   
+        } parameter;
+        struct
+        {
+            int address;
+            struct AstElement* expression;
+        } assignment_by_address;
         
     } data;
 };
@@ -68,4 +79,6 @@ struct AstElement* makeIfElse(struct AstElement* cond, struct AstElement* ifStmt
 struct AstElement* makeNop();
 struct AstElement* makeVariable(int name, int type, int index);
 struct AstElement* makeProcedure(int name, struct AstElement* parameter);
+struct AstElement* makeParameters(struct AstElement* dest, struct AstElement* toAppend);
+struct AstElement* makeAssignmentByAddress(int address, struct AstElement* val);
 #endif

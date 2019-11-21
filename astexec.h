@@ -18,7 +18,7 @@ void print_val(float num);
 
 int var_map[HASHSIZE][2];
 // std::unordered_map<std::string, std::pair<STACK_PLACE, LENTH> >  var_map;
-block mem_stack[1000][2];
+float mem_stack[1000][2];
 // std::vector<std::pair<TYPE, block> > mem_stack;
 
 struct AstElement* sub_program_map[HASHSIZE];

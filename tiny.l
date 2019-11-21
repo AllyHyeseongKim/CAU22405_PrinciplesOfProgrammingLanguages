@@ -62,5 +62,4 @@
     yylval.ival = (res % HASHSIZE); return T_ID;}
 [0-9]+\.[0-9]+ 	                                    {yylval.fval = atof(yytext); return T_FLOATING;}
 [0-9]+		                                        {yylval.ival = atoi(yytext); return T_INTEGER;}
-.                                                   {return T_NONE;}
 %%

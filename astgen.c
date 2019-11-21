@@ -159,3 +159,51 @@ struct AstElement* makeProcedure(int name, struct AstElement* parameter) {
     result->data.procedure.parameter = parameter;
     return result;
 }
+
+struct AstElement* makeParameters(struct AstElement* dest, struct AstElement* toAppend){     
+    if(!toAppend)
+    {
+        toAppend = checkAlloc(sizeof(*dest));
+        toAppend->kind = ekParameter;
+        toAppend->data.parameter.count = 0;
+        toAppend->data.parameter.expressions = 0;
+    }
+    if(!dest)
+    {
+        dest = checkAlloc(sizeof(*dest));
+        dest->kind = ekParameter;
+        dest->data.parameter.count = 0;
+        dest->data.parameter.expressions = 0;
+        return dest;
+    }
+    assert(dest);
+    assert(ekParameter == toAppend->kind);
+    assert(ekBinExpression == dest->kind);
+
+    struct AstElement* temp = checkAlloc(sizeof(*dest));
+    temp->kind = dest->kind;
+    temp->data.expression.left = dest->data.expression.left;
+    temp->data.expression.op = dest->data.expression.op;
+    temp->data.expression.right = dest->data.expression.right;
+
+    dest->kind = ekParameter;
+    dest->data.parameter.count = toAppend->data.parameter.count + 1;
+    dest->data.parameter.expressions = checkAlloc(dest->data.parameter.count*sizeof(*toAppend->data.parameter.expressions));
+
+    dest->data.parameter.expressions[0] = temp;
+    for(int i = 0; i < toAppend->data.parameter.count; i++) {
+        dest->data.parameter.expressions[i + 1] = toAppend->data.parameter.expressions[i];
+    }
+
+    return dest;   
+}
+
+struct AstElement* makeAssignmentByAddress(int address, struct AstElement* val) {
+    struct AstElement* result = checkAlloc(sizeof(*result));
+    result->data.assignment_by_address.address = address;
+    result->data.assignment_by_address.expression = val;
+    result->kind = ekAssignAddress;
+
+    return result;
+
+}

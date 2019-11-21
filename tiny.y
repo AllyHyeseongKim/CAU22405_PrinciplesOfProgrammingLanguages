@@ -8,6 +8,8 @@
 extern int yylex();
 extern int yyparse();
 extern FILE* yyin;
+extern int stack_frame;
+extern int stackSize;
 
 int varIndex = 0;
 int argSize = 0;
@@ -40,7 +42,7 @@ void yyerror(const char* s);
 %left T_PLUS T_MINUS
 %left T_MULTIPLE T_DIVIDE
 
-%type<ast> parameter_list actual_parameter_expression
+%type<ast> parameter_list actual_parameter_expression expression_list 
 %type<ast> procedure_statement statement compound_statement statement_list while_statement identifier_list declarations arguments subprogram_head
 %type<ast> term factor simple_expression expression print_statement if_statement else_if_statement subprogram_declarations subprogram_declaration
 %type<ival> variable standard_type type
@@ -49,7 +51,8 @@ void yyerror(const char* s);
 
 %%
 program_start:
-        | T_MAINPROG T_ID T_SEMICOLON declarations subprogram_declarations compound_statement   { (*(struct AstElement**)astDest) = combineStatement($4, $6);}
+        | T_MAINPROG T_ID T_SEMICOLON declarations subprogram_declarations compound_statement   { make_id(0, 0, 1);(*(struct AstElement**)astDest) = combineStatement($4, $6);}
+        | T_MAINPROG T_ID error declarations subprogram_declarations compound_statement     {printf("No semicolon"); (*(struct AstElement**)astDest) = combineStatement($4, $6);}
 
 ;
 declarations:
@@ -73,15 +76,15 @@ subprogram_declarations:
         | 
 ;
 subprogram_declaration:
-        subprogram_head declarations compound_statement                                         {sub_program_map[subName] = combineStatement($2, $3)}
+        subprogram_head declarations compound_statement                                         {sub_program_map[subName] = combineStatement($1, combineStatement($2, $3))}
 ;
 subprogram_head:
-        T_FUNCTION T_ID arguments T_COLON standard_type T_SEMICOLON                             {}
-        | T_PROCEDURE T_ID arguments T_SEMICOLON                                                {$$ = makeStatement(makeVariable($2, PROCEDURE, argSize), $3); varType=PROCEDURE; subName=$2;}
+        T_FUNCTION T_ID arguments T_COLON standard_type T_SEMICOLON                             {$$ = $3; varType=FUNCTION; subName=$2;}
+        | T_PROCEDURE T_ID arguments T_SEMICOLON                                                {$$ = $3; varType=PROCEDURE; subName=$2;}
 ;
 arguments:
         T_LEFT_PARENTHESIS parameter_list T_RIGHT_PARENTHESIS                                   {$$ = $2}
-        |                                                                                       {$$ = 0; argSize=0;}
+        | T_LEFT_PARENTHESIS T_RIGHT_PARENTHESIS                                                {$$ = 0; argSize=0;}
 ;
 parameter_list:
         type T_COLON identifier_list                                                            {$$ = $3}
@@ -96,13 +99,13 @@ statement_list:
 ;
 statement:
         variable T_ASSIGN expression                                                            {$$ = makeAssignment($1, varIndex, $3);}
-        | print_statement                                                                       {}
+        | print_statement                                                                       {$$ = $1}
         | procedure_statement                                                                   {$$ = $1} 
         | compound_statement                                                                    {$$ = $1}
         | if_statement                                                                          {$$ = $1}
         | while_statement                                                                       {$$ = $1}
         | for_statement 
-        | T_RETURN expression                                                                   {} 
+        | T_RETURN expression                                                                   {$$ = makeAssignmentByAddress(stack_frame, $2);} 
         | T_NOP                                                                                 {$$ = makeNop()}
 ;
 if_statement:
@@ -135,15 +138,15 @@ procedure_statement:
         T_ID T_LEFT_PARENTHESIS actual_parameter_expression T_RIGHT_PARENTHESIS                 {$$ = makeProcedure($1, $3)}
 ;
 actual_parameter_expression:
-        expression_list                                                                         {$$ = 0}
-        |                                                                                       {$$ = 0}
+        expression_list                                                                         {$$ = $1; }
+        |                                                                                       {$$ = makeParameters(0, 0)}
 ;
 expression_list:
-        expression                                                                              {}
-        | expression T_COMMA expression_list                                                    {}
+        expression                                                                              {$$ = makeParameters($1, 0); }
+        | expression T_COMMA expression_list                                                    {$$ = makeParameters($1, $3);}
 ;
 expression:
-        simple_expression                                                                       {$$ = $1}
+        simple_expression                                                                       {$$ = makeExp($1, makeExpByNum(0), '+')}
         | simple_expression T_LARGER simple_expression                                          {$$ = makeExp($1, $3, '>');}
         | simple_expression T_LARGER_EQUAL simple_expression                                    {$$ = makeExp($1, $3, '1');}
         | simple_expression T_SMALLER simple_expression                                         {$$ = makeExp($1, $3, '<');}
