@@ -1,14 +1,14 @@
 mainprog main;
-int a, b;
-    procedure pro(int: a, b);
-    begin
-        print(a);
-        return 1
-    end
-
-
+int[10] a;
+int b;
 begin
-    a = 2;
-    b = pro(1, 1);
-    print(a)
+    a[0] = 0;
+    a[1] = 1;
+    a[2] = 2;
+    a[3] = 3;
+    a[4] = 4;
+    a[5] = 5;
+    a[6] = 6;
+    for b in a:
+        print(b)
 end

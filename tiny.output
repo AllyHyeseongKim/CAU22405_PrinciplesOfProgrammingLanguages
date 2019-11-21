@@ -10,10 +10,10 @@ Terminals which are not used
    T_COMMENT
 
 
-State 113 conflicts: 2 shift/reduce
-State 124 conflicts: 1 shift/reduce
-State 126 conflicts: 1 shift/reduce
-State 144 conflicts: 2 shift/reduce
+State 114 conflicts: 2 shift/reduce
+State 125 conflicts: 1 shift/reduce
+State 127 conflicts: 1 shift/reduce
+State 145 conflicts: 2 shift/reduce
 
 
 Grammar
@@ -79,7 +79,7 @@ Grammar
    41 for_statement: T_FOR for_condition T_COLON statement
    42              | T_FOR for_condition T_COLON statement T_ELSE T_COLON statement
 
-   43 for_condition: expression T_IN expression
+   43 for_condition: variable T_IN variable
 
    44 print_statement: T_PRINT
    45                | T_PRINT T_LEFT_PARENTHESIS expression T_RIGHT_PARENTHESIS
@@ -216,7 +216,7 @@ for_condition (67)
 print_statement (68)
     on left: 44 45, on right: 25
 variable (69)
-    on left: 46 47, on right: 24 68
+    on left: 46 47, on right: 24 43 68
 procedure_statement (70)
     on left: 48, on right: 26 69
 actual_parameter_expression (71)
@@ -225,7 +225,7 @@ expression_list (72)
     on left: 51 52, on right: 49 52
 expression (73)
     on left: 53 54 55 56 57 58 59, on right: 24 31 33 34 35 36 37 38
-    39 40 43 45 47 51 52
+    39 40 45 47 51 52
 simple_expression (74)
     on left: 60 61 62, on right: 53 54 55 56 57 58 59 61 62
 term (75)
@@ -664,7 +664,7 @@ state 34
 
 state 35
 
-   46 variable: T_ID .  [T_PLUS, T_MINUS, T_MULTIPLE, T_DIVIDE, T_SMALLER, T_EQUAL, T_NOT_EQUAL, T_ASSIGN, T_SMALLER_EQUAL, T_LARGER_EQUAL, T_LARGER, T_END, T_ELSE, T_IN, T_SEMICOLON, T_COMMA, T_RIGHT_PARENTHESIS, T_RIGHT_BRACKET, T_COLON, T_ELIF]
+   46 variable: T_ID .  [T_PLUS, T_MINUS, T_MULTIPLE, T_DIVIDE, T_SMALLER, T_EQUAL, T_NOT_EQUAL, T_ASSIGN, T_SMALLER_EQUAL, T_LARGER_EQUAL, T_LARGER, T_END, T_ELSE, T_SEMICOLON, T_COMMA, T_RIGHT_PARENTHESIS, T_RIGHT_BRACKET, T_COLON, T_ELIF]
    47         | T_ID . T_LEFT_BRACKET expression T_RIGHT_BRACKET
    48 procedure_statement: T_ID . T_LEFT_PARENTHESIS actual_parameter_expression T_RIGHT_PARENTHESIS
 
@@ -824,45 +824,14 @@ state 41
 
    41 for_statement: T_FOR . for_condition T_COLON statement
    42              | T_FOR . for_condition T_COLON statement T_ELSE T_COLON statement
-   43 for_condition: . expression T_IN expression
+   43 for_condition: . variable T_IN variable
    46 variable: . T_ID
    47         | . T_ID T_LEFT_BRACKET expression T_RIGHT_BRACKET
-   48 procedure_statement: . T_ID T_LEFT_PARENTHESIS actual_parameter_expression T_RIGHT_PARENTHESIS
-   53 expression: . simple_expression
-   54           | . simple_expression T_LARGER simple_expression
-   55           | . simple_expression T_LARGER_EQUAL simple_expression
-   56           | . simple_expression T_SMALLER simple_expression
-   57           | . simple_expression T_SMALLER_EQUAL simple_expression
-   58           | . simple_expression T_EQUAL simple_expression
-   59           | . simple_expression T_NOT_EQUAL simple_expression
-   60 simple_expression: . term
-   61                  | . term T_PLUS simple_expression
-   62                  | . term T_MINUS simple_expression
-   63 term: . factor
-   64     | . factor T_MULTIPLE term
-   65     | . factor T_DIVIDE term
-   66 factor: . T_INTEGER
-   67       | . T_FLOATING
-   68       | . variable
-   69       | . procedure_statement
-   70       | . T_NOT factor
-   71       | . T_PLUS factor
-   72       | . T_MINUS factor
 
-    T_INTEGER   shift, and go to state 62
-    T_ID        shift, and go to state 35
-    T_FLOATING  shift, and go to state 63
-    T_PLUS      shift, and go to state 64
-    T_MINUS     shift, and go to state 65
-    T_NOT       shift, and go to state 66
+    T_ID  shift, and go to state 76
 
-    for_condition        go to state 76
-    variable             go to state 67
-    procedure_statement  go to state 68
-    expression           go to state 77
-    simple_expression    go to state 70
-    term                 go to state 71
-    factor               go to state 72
+    for_condition  go to state 77
+    variable       go to state 78
 
 
 state 42
@@ -876,7 +845,7 @@ state 43
 
    21 compound_statement: T_BEGIN statement_list . T_END
 
-    T_END  shift, and go to state 78
+    T_END  shift, and go to state 79
 
 
 state 44
@@ -884,7 +853,7 @@ state 44
    22 statement_list: statement .  [T_END]
    23               | statement . T_SEMICOLON statement_list
 
-    T_SEMICOLON  shift, and go to state 79
+    T_SEMICOLON  shift, and go to state 80
 
     $default  reduce using rule 22 (statement_list)
 
@@ -921,7 +890,7 @@ state 49
 
    24 statement: variable . T_ASSIGN expression
 
-    T_ASSIGN  shift, and go to state 80
+    T_ASSIGN  shift, and go to state 81
 
 
 state 50
@@ -971,14 +940,14 @@ state 56
    19 parameter_list: type . T_COLON identifier_list
    20               | type . T_COLON identifier_list T_SEMICOLON parameter_list
 
-    T_COLON  shift, and go to state 81
+    T_COLON  shift, and go to state 82
 
 
 state 57
 
    17 arguments: T_LEFT_PARENTHESIS parameter_list . T_RIGHT_PARENTHESIS
 
-    T_RIGHT_PARENTHESIS  shift, and go to state 82
+    T_RIGHT_PARENTHESIS  shift, and go to state 83
 
 
 state 58
@@ -990,7 +959,7 @@ state 58
     T_INT    shift, and go to state 7
     T_FLOAT  shift, and go to state 8
 
-    standard_type  go to state 83
+    standard_type  go to state 84
 
 
 state 59
@@ -1042,9 +1011,9 @@ state 60
 
     variable                     go to state 67
     procedure_statement          go to state 68
-    actual_parameter_expression  go to state 84
-    expression_list              go to state 85
-    expression                   go to state 86
+    actual_parameter_expression  go to state 85
+    expression_list              go to state 86
+    expression                   go to state 87
     simple_expression            go to state 70
     term                         go to state 71
     factor                       go to state 72
@@ -1086,7 +1055,7 @@ state 61
 
     variable             go to state 67
     procedure_statement  go to state 68
-    expression           go to state 87
+    expression           go to state 88
     simple_expression    go to state 70
     term                 go to state 71
     factor               go to state 72
@@ -1129,7 +1098,7 @@ state 64
 
     variable             go to state 67
     procedure_statement  go to state 68
-    factor               go to state 88
+    factor               go to state 89
 
 
 state 65
@@ -1155,7 +1124,7 @@ state 65
 
     variable             go to state 67
     procedure_statement  go to state 68
-    factor               go to state 89
+    factor               go to state 90
 
 
 state 66
@@ -1181,7 +1150,7 @@ state 66
 
     variable             go to state 67
     procedure_statement  go to state 68
-    factor               go to state 90
+    factor               go to state 91
 
 
 state 67
@@ -1204,12 +1173,12 @@ state 69
    34             | T_IF expression . T_COLON statement T_ELSE T_COLON statement
    35             | T_IF expression . T_COLON statement else_if_statement
 
-    T_COLON  shift, and go to state 91
+    T_COLON  shift, and go to state 92
 
 
 state 70
 
-   53 expression: simple_expression .  [T_END, T_ELSE, T_IN, T_SEMICOLON, T_COMMA, T_RIGHT_PARENTHESIS, T_RIGHT_BRACKET, T_COLON, T_ELIF]
+   53 expression: simple_expression .  [T_END, T_ELSE, T_SEMICOLON, T_COMMA, T_RIGHT_PARENTHESIS, T_RIGHT_BRACKET, T_COLON, T_ELIF]
    54           | simple_expression . T_LARGER simple_expression
    55           | simple_expression . T_LARGER_EQUAL simple_expression
    56           | simple_expression . T_SMALLER simple_expression
@@ -1217,36 +1186,36 @@ state 70
    58           | simple_expression . T_EQUAL simple_expression
    59           | simple_expression . T_NOT_EQUAL simple_expression
 
-    T_SMALLER        shift, and go to state 92
-    T_EQUAL          shift, and go to state 93
-    T_NOT_EQUAL      shift, and go to state 94
-    T_SMALLER_EQUAL  shift, and go to state 95
-    T_LARGER_EQUAL   shift, and go to state 96
-    T_LARGER         shift, and go to state 97
+    T_SMALLER        shift, and go to state 93
+    T_EQUAL          shift, and go to state 94
+    T_NOT_EQUAL      shift, and go to state 95
+    T_SMALLER_EQUAL  shift, and go to state 96
+    T_LARGER_EQUAL   shift, and go to state 97
+    T_LARGER         shift, and go to state 98
 
     $default  reduce using rule 53 (expression)
 
 
 state 71
 
-   60 simple_expression: term .  [T_SMALLER, T_EQUAL, T_NOT_EQUAL, T_SMALLER_EQUAL, T_LARGER_EQUAL, T_LARGER, T_END, T_ELSE, T_IN, T_SEMICOLON, T_COMMA, T_RIGHT_PARENTHESIS, T_RIGHT_BRACKET, T_COLON, T_ELIF]
+   60 simple_expression: term .  [T_SMALLER, T_EQUAL, T_NOT_EQUAL, T_SMALLER_EQUAL, T_LARGER_EQUAL, T_LARGER, T_END, T_ELSE, T_SEMICOLON, T_COMMA, T_RIGHT_PARENTHESIS, T_RIGHT_BRACKET, T_COLON, T_ELIF]
    61                  | term . T_PLUS simple_expression
    62                  | term . T_MINUS simple_expression
 
-    T_PLUS   shift, and go to state 98
-    T_MINUS  shift, and go to state 99
+    T_PLUS   shift, and go to state 99
+    T_MINUS  shift, and go to state 100
 
     $default  reduce using rule 60 (simple_expression)
 
 
 state 72
 
-   63 term: factor .  [T_PLUS, T_MINUS, T_SMALLER, T_EQUAL, T_NOT_EQUAL, T_SMALLER_EQUAL, T_LARGER_EQUAL, T_LARGER, T_END, T_ELSE, T_IN, T_SEMICOLON, T_COMMA, T_RIGHT_PARENTHESIS, T_RIGHT_BRACKET, T_COLON, T_ELIF]
+   63 term: factor .  [T_PLUS, T_MINUS, T_SMALLER, T_EQUAL, T_NOT_EQUAL, T_SMALLER_EQUAL, T_LARGER_EQUAL, T_LARGER, T_END, T_ELSE, T_SEMICOLON, T_COMMA, T_RIGHT_PARENTHESIS, T_RIGHT_BRACKET, T_COLON, T_ELIF]
    64     | factor . T_MULTIPLE term
    65     | factor . T_DIVIDE term
 
-    T_MULTIPLE  shift, and go to state 100
-    T_DIVIDE    shift, and go to state 101
+    T_MULTIPLE  shift, and go to state 101
+    T_DIVIDE    shift, and go to state 102
 
     $default  reduce using rule 63 (term)
 
@@ -1256,7 +1225,7 @@ state 73
    39 while_statement: T_WHILE expression . T_COLON statement
    40                | T_WHILE expression . T_COLON statement T_ELSE T_COLON statement
 
-    T_COLON  shift, and go to state 102
+    T_COLON  shift, and go to state 103
 
 
 state 74
@@ -1302,7 +1271,7 @@ state 75
 
     variable             go to state 67
     procedure_statement  go to state 68
-    expression           go to state 103
+    expression           go to state 104
     simple_expression    go to state 70
     term                 go to state 71
     factor               go to state 72
@@ -1310,27 +1279,37 @@ state 75
 
 state 76
 
-   41 for_statement: T_FOR for_condition . T_COLON statement
-   42              | T_FOR for_condition . T_COLON statement T_ELSE T_COLON statement
+   46 variable: T_ID .  [T_IN, T_COLON]
+   47         | T_ID . T_LEFT_BRACKET expression T_RIGHT_BRACKET
 
-    T_COLON  shift, and go to state 104
+    T_LEFT_BRACKET  shift, and go to state 61
+
+    $default  reduce using rule 46 (variable)
 
 
 state 77
 
-   43 for_condition: expression . T_IN expression
+   41 for_statement: T_FOR for_condition . T_COLON statement
+   42              | T_FOR for_condition . T_COLON statement T_ELSE T_COLON statement
 
-    T_IN  shift, and go to state 105
+    T_COLON  shift, and go to state 105
 
 
 state 78
+
+   43 for_condition: variable . T_IN variable
+
+    T_IN  shift, and go to state 106
+
+
+state 79
 
    21 compound_statement: T_BEGIN statement_list T_END .
 
     $default  reduce using rule 21 (compound_statement)
 
 
-state 79
+state 80
 
    21 compound_statement: . T_BEGIN statement_list T_END
    22 statement_list: . statement
@@ -1368,7 +1347,7 @@ state 79
     T_FOR     shift, and go to state 41
 
     compound_statement   go to state 42
-    statement_list       go to state 106
+    statement_list       go to state 107
     statement            go to state 44
     if_statement         go to state 45
     while_statement      go to state 46
@@ -1378,7 +1357,7 @@ state 79
     procedure_statement  go to state 50
 
 
-state 80
+state 81
 
    24 statement: variable T_ASSIGN . expression
    46 variable: . T_ID
@@ -1414,13 +1393,13 @@ state 80
 
     variable             go to state 67
     procedure_statement  go to state 68
-    expression           go to state 107
+    expression           go to state 108
     simple_expression    go to state 70
     term                 go to state 71
     factor               go to state 72
 
 
-state 81
+state 82
 
     6 identifier_list: . T_ID
     7                | . T_ID T_COMMA identifier_list
@@ -1429,76 +1408,76 @@ state 81
 
     T_ID  shift, and go to state 18
 
-    identifier_list  go to state 108
+    identifier_list  go to state 109
 
 
-state 82
+state 83
 
    17 arguments: T_LEFT_PARENTHESIS parameter_list T_RIGHT_PARENTHESIS .
 
     $default  reduce using rule 17 (arguments)
 
 
-state 83
+state 84
 
    15 subprogram_head: T_FUNCTION T_ID arguments T_COLON standard_type . T_SEMICOLON
 
-    T_SEMICOLON  shift, and go to state 109
-
-
-state 84
-
-   48 procedure_statement: T_ID T_LEFT_PARENTHESIS actual_parameter_expression . T_RIGHT_PARENTHESIS
-
-    T_RIGHT_PARENTHESIS  shift, and go to state 110
+    T_SEMICOLON  shift, and go to state 110
 
 
 state 85
+
+   48 procedure_statement: T_ID T_LEFT_PARENTHESIS actual_parameter_expression . T_RIGHT_PARENTHESIS
+
+    T_RIGHT_PARENTHESIS  shift, and go to state 111
+
+
+state 86
 
    49 actual_parameter_expression: expression_list .
 
     $default  reduce using rule 49 (actual_parameter_expression)
 
 
-state 86
+state 87
 
    51 expression_list: expression .  [T_RIGHT_PARENTHESIS]
    52                | expression . T_COMMA expression_list
 
-    T_COMMA  shift, and go to state 111
+    T_COMMA  shift, and go to state 112
 
     $default  reduce using rule 51 (expression_list)
 
 
-state 87
+state 88
 
    47 variable: T_ID T_LEFT_BRACKET expression . T_RIGHT_BRACKET
 
-    T_RIGHT_BRACKET  shift, and go to state 112
+    T_RIGHT_BRACKET  shift, and go to state 113
 
 
-state 88
+state 89
 
    71 factor: T_PLUS factor .
 
     $default  reduce using rule 71 (factor)
 
 
-state 89
+state 90
 
    72 factor: T_MINUS factor .
 
     $default  reduce using rule 72 (factor)
 
 
-state 90
+state 91
 
    70 factor: T_NOT factor .
 
     $default  reduce using rule 70 (factor)
 
 
-state 91
+state 92
 
    21 compound_statement: . T_BEGIN statement_list T_END
    24 statement: . variable T_ASSIGN expression
@@ -1536,7 +1515,7 @@ state 91
     T_FOR     shift, and go to state 41
 
     compound_statement   go to state 42
-    statement            go to state 113
+    statement            go to state 114
     if_statement         go to state 45
     while_statement      go to state 46
     for_statement        go to state 47
@@ -1545,46 +1524,12 @@ state 91
     procedure_statement  go to state 50
 
 
-state 92
-
-   46 variable: . T_ID
-   47         | . T_ID T_LEFT_BRACKET expression T_RIGHT_BRACKET
-   48 procedure_statement: . T_ID T_LEFT_PARENTHESIS actual_parameter_expression T_RIGHT_PARENTHESIS
-   56 expression: simple_expression T_SMALLER . simple_expression
-   60 simple_expression: . term
-   61                  | . term T_PLUS simple_expression
-   62                  | . term T_MINUS simple_expression
-   63 term: . factor
-   64     | . factor T_MULTIPLE term
-   65     | . factor T_DIVIDE term
-   66 factor: . T_INTEGER
-   67       | . T_FLOATING
-   68       | . variable
-   69       | . procedure_statement
-   70       | . T_NOT factor
-   71       | . T_PLUS factor
-   72       | . T_MINUS factor
-
-    T_INTEGER   shift, and go to state 62
-    T_ID        shift, and go to state 35
-    T_FLOATING  shift, and go to state 63
-    T_PLUS      shift, and go to state 64
-    T_MINUS     shift, and go to state 65
-    T_NOT       shift, and go to state 66
-
-    variable             go to state 67
-    procedure_statement  go to state 68
-    simple_expression    go to state 114
-    term                 go to state 71
-    factor               go to state 72
-
-
 state 93
 
    46 variable: . T_ID
    47         | . T_ID T_LEFT_BRACKET expression T_RIGHT_BRACKET
    48 procedure_statement: . T_ID T_LEFT_PARENTHESIS actual_parameter_expression T_RIGHT_PARENTHESIS
-   58 expression: simple_expression T_EQUAL . simple_expression
+   56 expression: simple_expression T_SMALLER . simple_expression
    60 simple_expression: . term
    61                  | . term T_PLUS simple_expression
    62                  | . term T_MINUS simple_expression
@@ -1618,7 +1563,7 @@ state 94
    46 variable: . T_ID
    47         | . T_ID T_LEFT_BRACKET expression T_RIGHT_BRACKET
    48 procedure_statement: . T_ID T_LEFT_PARENTHESIS actual_parameter_expression T_RIGHT_PARENTHESIS
-   59 expression: simple_expression T_NOT_EQUAL . simple_expression
+   58 expression: simple_expression T_EQUAL . simple_expression
    60 simple_expression: . term
    61                  | . term T_PLUS simple_expression
    62                  | . term T_MINUS simple_expression
@@ -1652,7 +1597,7 @@ state 95
    46 variable: . T_ID
    47         | . T_ID T_LEFT_BRACKET expression T_RIGHT_BRACKET
    48 procedure_statement: . T_ID T_LEFT_PARENTHESIS actual_parameter_expression T_RIGHT_PARENTHESIS
-   57 expression: simple_expression T_SMALLER_EQUAL . simple_expression
+   59 expression: simple_expression T_NOT_EQUAL . simple_expression
    60 simple_expression: . term
    61                  | . term T_PLUS simple_expression
    62                  | . term T_MINUS simple_expression
@@ -1686,7 +1631,7 @@ state 96
    46 variable: . T_ID
    47         | . T_ID T_LEFT_BRACKET expression T_RIGHT_BRACKET
    48 procedure_statement: . T_ID T_LEFT_PARENTHESIS actual_parameter_expression T_RIGHT_PARENTHESIS
-   55 expression: simple_expression T_LARGER_EQUAL . simple_expression
+   57 expression: simple_expression T_SMALLER_EQUAL . simple_expression
    60 simple_expression: . term
    61                  | . term T_PLUS simple_expression
    62                  | . term T_MINUS simple_expression
@@ -1720,7 +1665,7 @@ state 97
    46 variable: . T_ID
    47         | . T_ID T_LEFT_BRACKET expression T_RIGHT_BRACKET
    48 procedure_statement: . T_ID T_LEFT_PARENTHESIS actual_parameter_expression T_RIGHT_PARENTHESIS
-   54 expression: simple_expression T_LARGER . simple_expression
+   55 expression: simple_expression T_LARGER_EQUAL . simple_expression
    60 simple_expression: . term
    61                  | . term T_PLUS simple_expression
    62                  | . term T_MINUS simple_expression
@@ -1754,9 +1699,9 @@ state 98
    46 variable: . T_ID
    47         | . T_ID T_LEFT_BRACKET expression T_RIGHT_BRACKET
    48 procedure_statement: . T_ID T_LEFT_PARENTHESIS actual_parameter_expression T_RIGHT_PARENTHESIS
+   54 expression: simple_expression T_LARGER . simple_expression
    60 simple_expression: . term
    61                  | . term T_PLUS simple_expression
-   61                  | term T_PLUS . simple_expression
    62                  | . term T_MINUS simple_expression
    63 term: . factor
    64     | . factor T_MULTIPLE term
@@ -1790,8 +1735,8 @@ state 99
    48 procedure_statement: . T_ID T_LEFT_PARENTHESIS actual_parameter_expression T_RIGHT_PARENTHESIS
    60 simple_expression: . term
    61                  | . term T_PLUS simple_expression
+   61                  | term T_PLUS . simple_expression
    62                  | . term T_MINUS simple_expression
-   62                  | term T_MINUS . simple_expression
    63 term: . factor
    64     | . factor T_MULTIPLE term
    65     | . factor T_DIVIDE term
@@ -1822,6 +1767,40 @@ state 100
    46 variable: . T_ID
    47         | . T_ID T_LEFT_BRACKET expression T_RIGHT_BRACKET
    48 procedure_statement: . T_ID T_LEFT_PARENTHESIS actual_parameter_expression T_RIGHT_PARENTHESIS
+   60 simple_expression: . term
+   61                  | . term T_PLUS simple_expression
+   62                  | . term T_MINUS simple_expression
+   62                  | term T_MINUS . simple_expression
+   63 term: . factor
+   64     | . factor T_MULTIPLE term
+   65     | . factor T_DIVIDE term
+   66 factor: . T_INTEGER
+   67       | . T_FLOATING
+   68       | . variable
+   69       | . procedure_statement
+   70       | . T_NOT factor
+   71       | . T_PLUS factor
+   72       | . T_MINUS factor
+
+    T_INTEGER   shift, and go to state 62
+    T_ID        shift, and go to state 35
+    T_FLOATING  shift, and go to state 63
+    T_PLUS      shift, and go to state 64
+    T_MINUS     shift, and go to state 65
+    T_NOT       shift, and go to state 66
+
+    variable             go to state 67
+    procedure_statement  go to state 68
+    simple_expression    go to state 122
+    term                 go to state 71
+    factor               go to state 72
+
+
+state 101
+
+   46 variable: . T_ID
+   47         | . T_ID T_LEFT_BRACKET expression T_RIGHT_BRACKET
+   48 procedure_statement: . T_ID T_LEFT_PARENTHESIS actual_parameter_expression T_RIGHT_PARENTHESIS
    63 term: . factor
    64     | . factor T_MULTIPLE term
    64     | factor T_MULTIPLE . term
@@ -1843,11 +1822,11 @@ state 100
 
     variable             go to state 67
     procedure_statement  go to state 68
-    term                 go to state 122
+    term                 go to state 123
     factor               go to state 72
 
 
-state 101
+state 102
 
    46 variable: . T_ID
    47         | . T_ID T_LEFT_BRACKET expression T_RIGHT_BRACKET
@@ -1873,11 +1852,11 @@ state 101
 
     variable             go to state 67
     procedure_statement  go to state 68
-    term                 go to state 123
+    term                 go to state 124
     factor               go to state 72
 
 
-state 102
+state 103
 
    21 compound_statement: . T_BEGIN statement_list T_END
    24 statement: . variable T_ASSIGN expression
@@ -1914,7 +1893,7 @@ state 102
     T_FOR     shift, and go to state 41
 
     compound_statement   go to state 42
-    statement            go to state 124
+    statement            go to state 125
     if_statement         go to state 45
     while_statement      go to state 46
     for_statement        go to state 47
@@ -1923,14 +1902,14 @@ state 102
     procedure_statement  go to state 50
 
 
-state 103
+state 104
 
    45 print_statement: T_PRINT T_LEFT_PARENTHESIS expression . T_RIGHT_PARENTHESIS
 
-    T_RIGHT_PARENTHESIS  shift, and go to state 125
+    T_RIGHT_PARENTHESIS  shift, and go to state 126
 
 
-state 104
+state 105
 
    21 compound_statement: . T_BEGIN statement_list T_END
    24 statement: . variable T_ASSIGN expression
@@ -1967,7 +1946,7 @@ state 104
     T_FOR     shift, and go to state 41
 
     compound_statement   go to state 42
-    statement            go to state 126
+    statement            go to state 127
     if_statement         go to state 45
     while_statement      go to state 46
     for_statement        go to state 47
@@ -1976,87 +1955,56 @@ state 104
     procedure_statement  go to state 50
 
 
-state 105
+state 106
 
-   43 for_condition: expression T_IN . expression
+   43 for_condition: variable T_IN . variable
    46 variable: . T_ID
    47         | . T_ID T_LEFT_BRACKET expression T_RIGHT_BRACKET
-   48 procedure_statement: . T_ID T_LEFT_PARENTHESIS actual_parameter_expression T_RIGHT_PARENTHESIS
-   53 expression: . simple_expression
-   54           | . simple_expression T_LARGER simple_expression
-   55           | . simple_expression T_LARGER_EQUAL simple_expression
-   56           | . simple_expression T_SMALLER simple_expression
-   57           | . simple_expression T_SMALLER_EQUAL simple_expression
-   58           | . simple_expression T_EQUAL simple_expression
-   59           | . simple_expression T_NOT_EQUAL simple_expression
-   60 simple_expression: . term
-   61                  | . term T_PLUS simple_expression
-   62                  | . term T_MINUS simple_expression
-   63 term: . factor
-   64     | . factor T_MULTIPLE term
-   65     | . factor T_DIVIDE term
-   66 factor: . T_INTEGER
-   67       | . T_FLOATING
-   68       | . variable
-   69       | . procedure_statement
-   70       | . T_NOT factor
-   71       | . T_PLUS factor
-   72       | . T_MINUS factor
 
-    T_INTEGER   shift, and go to state 62
-    T_ID        shift, and go to state 35
-    T_FLOATING  shift, and go to state 63
-    T_PLUS      shift, and go to state 64
-    T_MINUS     shift, and go to state 65
-    T_NOT       shift, and go to state 66
+    T_ID  shift, and go to state 76
 
-    variable             go to state 67
-    procedure_statement  go to state 68
-    expression           go to state 127
-    simple_expression    go to state 70
-    term                 go to state 71
-    factor               go to state 72
+    variable  go to state 128
 
 
-state 106
+state 107
 
    23 statement_list: statement T_SEMICOLON statement_list .
 
     $default  reduce using rule 23 (statement_list)
 
 
-state 107
+state 108
 
    24 statement: variable T_ASSIGN expression .
 
     $default  reduce using rule 24 (statement)
 
 
-state 108
+state 109
 
    19 parameter_list: type T_COLON identifier_list .  [T_RIGHT_PARENTHESIS]
    20               | type T_COLON identifier_list . T_SEMICOLON parameter_list
 
-    T_SEMICOLON  shift, and go to state 128
+    T_SEMICOLON  shift, and go to state 129
 
     $default  reduce using rule 19 (parameter_list)
 
 
-state 109
+state 110
 
    15 subprogram_head: T_FUNCTION T_ID arguments T_COLON standard_type T_SEMICOLON .
 
     $default  reduce using rule 15 (subprogram_head)
 
 
-state 110
+state 111
 
    48 procedure_statement: T_ID T_LEFT_PARENTHESIS actual_parameter_expression T_RIGHT_PARENTHESIS .
 
     $default  reduce using rule 48 (procedure_statement)
 
 
-state 111
+state 112
 
    46 variable: . T_ID
    47         | . T_ID T_LEFT_BRACKET expression T_RIGHT_BRACKET
@@ -2094,21 +2042,21 @@ state 111
 
     variable             go to state 67
     procedure_statement  go to state 68
-    expression_list      go to state 129
-    expression           go to state 86
+    expression_list      go to state 130
+    expression           go to state 87
     simple_expression    go to state 70
     term                 go to state 71
     factor               go to state 72
 
 
-state 112
+state 113
 
    47 variable: T_ID T_LEFT_BRACKET expression T_RIGHT_BRACKET .
 
     $default  reduce using rule 47 (variable)
 
 
-state 113
+state 114
 
    33 if_statement: T_IF expression T_COLON statement .  [T_END, T_ELSE, T_SEMICOLON, T_ELIF]
    34             | T_IF expression T_COLON statement . T_ELSE T_COLON statement
@@ -2117,123 +2065,123 @@ state 113
    37                  | . T_ELIF expression T_COLON statement T_ELSE T_COLON statement
    38                  | . T_ELIF expression T_COLON statement else_if_statement
 
-    T_ELSE  shift, and go to state 130
-    T_ELIF  shift, and go to state 131
+    T_ELSE  shift, and go to state 131
+    T_ELIF  shift, and go to state 132
 
     T_ELSE    [reduce using rule 33 (if_statement)]
     T_ELIF    [reduce using rule 33 (if_statement)]
     $default  reduce using rule 33 (if_statement)
 
-    else_if_statement  go to state 132
+    else_if_statement  go to state 133
 
 
-state 114
+state 115
 
    56 expression: simple_expression T_SMALLER simple_expression .
 
     $default  reduce using rule 56 (expression)
 
 
-state 115
+state 116
 
    58 expression: simple_expression T_EQUAL simple_expression .
 
     $default  reduce using rule 58 (expression)
 
 
-state 116
+state 117
 
    59 expression: simple_expression T_NOT_EQUAL simple_expression .
 
     $default  reduce using rule 59 (expression)
 
 
-state 117
+state 118
 
    57 expression: simple_expression T_SMALLER_EQUAL simple_expression .
 
     $default  reduce using rule 57 (expression)
 
 
-state 118
+state 119
 
    55 expression: simple_expression T_LARGER_EQUAL simple_expression .
 
     $default  reduce using rule 55 (expression)
 
 
-state 119
+state 120
 
    54 expression: simple_expression T_LARGER simple_expression .
 
     $default  reduce using rule 54 (expression)
 
 
-state 120
+state 121
 
    61 simple_expression: term T_PLUS simple_expression .
 
     $default  reduce using rule 61 (simple_expression)
 
 
-state 121
+state 122
 
    62 simple_expression: term T_MINUS simple_expression .
 
     $default  reduce using rule 62 (simple_expression)
 
 
-state 122
+state 123
 
    64 term: factor T_MULTIPLE term .
 
     $default  reduce using rule 64 (term)
 
 
-state 123
+state 124
 
    65 term: factor T_DIVIDE term .
 
     $default  reduce using rule 65 (term)
 
 
-state 124
+state 125
 
    39 while_statement: T_WHILE expression T_COLON statement .  [T_END, T_ELSE, T_SEMICOLON, T_ELIF]
    40                | T_WHILE expression T_COLON statement . T_ELSE T_COLON statement
 
-    T_ELSE  shift, and go to state 133
+    T_ELSE  shift, and go to state 134
 
     T_ELSE    [reduce using rule 39 (while_statement)]
     $default  reduce using rule 39 (while_statement)
 
 
-state 125
+state 126
 
    45 print_statement: T_PRINT T_LEFT_PARENTHESIS expression T_RIGHT_PARENTHESIS .
 
     $default  reduce using rule 45 (print_statement)
 
 
-state 126
+state 127
 
    41 for_statement: T_FOR for_condition T_COLON statement .  [T_END, T_ELSE, T_SEMICOLON, T_ELIF]
    42              | T_FOR for_condition T_COLON statement . T_ELSE T_COLON statement
 
-    T_ELSE  shift, and go to state 134
+    T_ELSE  shift, and go to state 135
 
     T_ELSE    [reduce using rule 41 (for_statement)]
     $default  reduce using rule 41 (for_statement)
 
 
-state 127
+state 128
 
-   43 for_condition: expression T_IN expression .
+   43 for_condition: variable T_IN variable .
 
     $default  reduce using rule 43 (for_condition)
 
 
-state 128
+state 129
 
     8 type: . standard_type
     9     | . standard_type T_LEFT_BRACKET T_INTEGER T_RIGHT_BRACKET
@@ -2248,24 +2196,24 @@ state 128
 
     type            go to state 56
     standard_type   go to state 11
-    parameter_list  go to state 135
+    parameter_list  go to state 136
 
 
-state 129
+state 130
 
    52 expression_list: expression T_COMMA expression_list .
 
     $default  reduce using rule 52 (expression_list)
 
 
-state 130
+state 131
 
    34 if_statement: T_IF expression T_COLON statement T_ELSE . T_COLON statement
 
-    T_COLON  shift, and go to state 136
+    T_COLON  shift, and go to state 137
 
 
-state 131
+state 132
 
    36 else_if_statement: T_ELIF . expression T_COLON statement
    37                  | T_ELIF . expression T_COLON statement T_ELSE T_COLON statement
@@ -2303,41 +2251,41 @@ state 131
 
     variable             go to state 67
     procedure_statement  go to state 68
-    expression           go to state 137
+    expression           go to state 138
     simple_expression    go to state 70
     term                 go to state 71
     factor               go to state 72
 
 
-state 132
+state 133
 
    35 if_statement: T_IF expression T_COLON statement else_if_statement .
 
     $default  reduce using rule 35 (if_statement)
 
 
-state 133
-
-   40 while_statement: T_WHILE expression T_COLON statement T_ELSE . T_COLON statement
-
-    T_COLON  shift, and go to state 138
-
-
 state 134
 
-   42 for_statement: T_FOR for_condition T_COLON statement T_ELSE . T_COLON statement
+   40 while_statement: T_WHILE expression T_COLON statement T_ELSE . T_COLON statement
 
     T_COLON  shift, and go to state 139
 
 
 state 135
 
+   42 for_statement: T_FOR for_condition T_COLON statement T_ELSE . T_COLON statement
+
+    T_COLON  shift, and go to state 140
+
+
+state 136
+
    20 parameter_list: type T_COLON identifier_list T_SEMICOLON parameter_list .
 
     $default  reduce using rule 20 (parameter_list)
 
 
-state 136
+state 137
 
    21 compound_statement: . T_BEGIN statement_list T_END
    24 statement: . variable T_ASSIGN expression
@@ -2373,7 +2321,7 @@ state 136
     T_FOR     shift, and go to state 41
 
     compound_statement   go to state 42
-    statement            go to state 140
+    statement            go to state 141
     if_statement         go to state 45
     while_statement      go to state 46
     for_statement        go to state 47
@@ -2382,16 +2330,16 @@ state 136
     procedure_statement  go to state 50
 
 
-state 137
+state 138
 
    36 else_if_statement: T_ELIF expression . T_COLON statement
    37                  | T_ELIF expression . T_COLON statement T_ELSE T_COLON statement
    38                  | T_ELIF expression . T_COLON statement else_if_statement
 
-    T_COLON  shift, and go to state 141
+    T_COLON  shift, and go to state 142
 
 
-state 138
+state 139
 
    21 compound_statement: . T_BEGIN statement_list T_END
    24 statement: . variable T_ASSIGN expression
@@ -2427,7 +2375,7 @@ state 138
     T_FOR     shift, and go to state 41
 
     compound_statement   go to state 42
-    statement            go to state 142
+    statement            go to state 143
     if_statement         go to state 45
     while_statement      go to state 46
     for_statement        go to state 47
@@ -2436,7 +2384,7 @@ state 138
     procedure_statement  go to state 50
 
 
-state 139
+state 140
 
    21 compound_statement: . T_BEGIN statement_list T_END
    24 statement: . variable T_ASSIGN expression
@@ -2472,7 +2420,7 @@ state 139
     T_FOR     shift, and go to state 41
 
     compound_statement   go to state 42
-    statement            go to state 143
+    statement            go to state 144
     if_statement         go to state 45
     while_statement      go to state 46
     for_statement        go to state 47
@@ -2481,14 +2429,14 @@ state 139
     procedure_statement  go to state 50
 
 
-state 140
+state 141
 
    34 if_statement: T_IF expression T_COLON statement T_ELSE T_COLON statement .
 
     $default  reduce using rule 34 (if_statement)
 
 
-state 141
+state 142
 
    21 compound_statement: . T_BEGIN statement_list T_END
    24 statement: . variable T_ASSIGN expression
@@ -2526,7 +2474,7 @@ state 141
     T_FOR     shift, and go to state 41
 
     compound_statement   go to state 42
-    statement            go to state 144
+    statement            go to state 145
     if_statement         go to state 45
     while_statement      go to state 46
     for_statement        go to state 47
@@ -2535,21 +2483,21 @@ state 141
     procedure_statement  go to state 50
 
 
-state 142
+state 143
 
    40 while_statement: T_WHILE expression T_COLON statement T_ELSE T_COLON statement .
 
     $default  reduce using rule 40 (while_statement)
 
 
-state 143
+state 144
 
    42 for_statement: T_FOR for_condition T_COLON statement T_ELSE T_COLON statement .
 
     $default  reduce using rule 42 (for_statement)
 
 
-state 144
+state 145
 
    36 else_if_statement: . T_ELIF expression T_COLON statement  [T_END, T_ELSE, T_SEMICOLON, T_ELIF]
    36                  | T_ELIF expression T_COLON statement .  [T_END, T_ELSE, T_SEMICOLON, T_ELIF]
@@ -2558,31 +2506,31 @@ state 144
    38                  | . T_ELIF expression T_COLON statement else_if_statement
    38                  | T_ELIF expression T_COLON statement . else_if_statement
 
-    T_ELSE  shift, and go to state 145
-    T_ELIF  shift, and go to state 131
+    T_ELSE  shift, and go to state 146
+    T_ELIF  shift, and go to state 132
 
     T_ELSE    [reduce using rule 36 (else_if_statement)]
     T_ELIF    [reduce using rule 36 (else_if_statement)]
     $default  reduce using rule 36 (else_if_statement)
 
-    else_if_statement  go to state 146
-
-
-state 145
-
-   37 else_if_statement: T_ELIF expression T_COLON statement T_ELSE . T_COLON statement
-
-    T_COLON  shift, and go to state 147
+    else_if_statement  go to state 147
 
 
 state 146
+
+   37 else_if_statement: T_ELIF expression T_COLON statement T_ELSE . T_COLON statement
+
+    T_COLON  shift, and go to state 148
+
+
+state 147
 
    38 else_if_statement: T_ELIF expression T_COLON statement else_if_statement .
 
     $default  reduce using rule 38 (else_if_statement)
 
 
-state 147
+state 148
 
    21 compound_statement: . T_BEGIN statement_list T_END
    24 statement: . variable T_ASSIGN expression
@@ -2618,7 +2566,7 @@ state 147
     T_FOR     shift, and go to state 41
 
     compound_statement   go to state 42
-    statement            go to state 148
+    statement            go to state 149
     if_statement         go to state 45
     while_statement      go to state 46
     for_statement        go to state 47
@@ -2627,7 +2575,7 @@ state 147
     procedure_statement  go to state 50
 
 
-state 148
+state 149
 
    37 else_if_statement: T_ELIF expression T_COLON statement T_ELSE T_COLON statement .
 

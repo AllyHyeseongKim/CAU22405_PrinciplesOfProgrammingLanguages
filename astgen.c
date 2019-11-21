@@ -222,3 +222,20 @@ struct AstElement* makeExpByAddress(struct AstElement* procedure) {
     result->data.expAddr.procedure = procedure;
     return result;
 }
+
+struct AstElement* makeForCondition(int left, int right) {
+    struct AstElement* result = checkAlloc(sizeof(*result));
+    result->kind = ekForCondition;
+    result->data.for_condition.left_var = left;
+    result->data.for_condition.right_var = right; 
+    result->data.for_condition.num_call = 0; 
+    return result;
+}
+
+struct AstElement* makeFor(struct AstElement* cond, struct AstElement* exec) {
+    struct AstElement* result = checkAlloc(sizeof(*result));
+    result->kind = ekFor;
+    result->data.whileStmt.cond = cond;
+    result->data.whileStmt.statements = exec;
+    return result;
+}

@@ -9,10 +9,10 @@
 int stackSize = 0;
 int stack_frame = 0;
 
-void make_id(int var_name, TYPE varType, int varIndex) {
-        for(int i = 0; i < varIndex; i++) {
+void make_id(int var_name, TYPE varType, int len) {
+        for(int i = 0; i < len; i++) {
                 var_map[var_name + i][0] = stackSize;
-                var_map[var_name + i][1] = varIndex - i;
+                var_map[var_name + i][1] = len - i;
                 mem_stack[stackSize][0] = varType;
                 stackSize++;
         }
@@ -51,9 +51,10 @@ static void execProcedure(struct ExecEnviron* e, struct AstElement* a);
 static void execAssignAddress(struct ExecEnviron* e, struct AstElement* a);
 static void execCompoundStmt(struct ExecEnviron* e, struct AstElement* a);
 static float execAddrExp(struct ExecEnviron* e, struct AstElement* a);
+static float execForCond(struct ExecEnviron* e, struct AstElement* a);
+static void execFor(struct ExecEnviron* e, struct AstElement* a);
 
     
-
 /* Lookup Array for AST elements which yields values */
 static float(*valExecs[])(struct ExecEnviron* e, struct AstElement* a) =
 {
@@ -71,7 +72,9 @@ static float(*valExecs[])(struct ExecEnviron* e, struct AstElement* a) =
     execBinExp,
     NULL,
     NULL,
-    execAddrExp
+    execAddrExp,
+    execForCond,
+    NULL
 };
 
 /* lookup array for non-value AST elements */
@@ -91,7 +94,9 @@ static void(*runExecs[])(struct ExecEnviron* e, struct AstElement* a) =
     NULL,
     execAssignAddress,
     execCompoundStmt,
-    NULL
+    NULL,
+    NULL,
+    execFor
 };
 
 /* Dispatches any value expression */
@@ -298,6 +303,34 @@ static float execAddrExp(struct ExecEnviron* e, struct AstElement* a) {
     assert(ekExpAddress == a->kind);
     execStmt(e, a->data.expAddr.procedure);
     return mem_stack[0][1];
+}
+
+static float execForCond(struct ExecEnviron* e, struct AstElement* a) {
+    assert(a);
+    assert(ekForCondition == a->kind);
+    int left = a->data.for_condition.left_var;
+    int right = a->data.for_condition.right_var;
+    int count = a->data.for_condition.num_call;
+
+    if(count >= var_map[right][1])
+        return 0;
+
+    assign_var(left, get_var_val(right, count), 0);
+    a->data.for_condition.num_call = a->data.for_condition.num_call + 1;
+    return 1;
+}
+
+static void execFor(struct ExecEnviron* e, struct AstElement* a) {
+    assert(a);
+    assert(ekFor == a->kind);
+    struct AstElement* const c = a->data.whileStmt.cond;
+    struct AstElement* const s = a->data.whileStmt.statements;
+    assert(c);
+    assert(s);
+    while(dispatchExpression(e, c))
+    {
+        dispatchStatement(e, s);
+    }
 }
 
 void execAst(struct ExecEnviron* e, struct AstElement* a)

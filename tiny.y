@@ -43,7 +43,7 @@ void yyerror(const char* s);
 %left T_PLUS T_MINUS
 %left T_MULTIPLE T_DIVIDE
 
-%type<ast> parameter_list actual_parameter_expression expression_list for_condition
+%type<ast> parameter_list actual_parameter_expression expression_list for_condition for_statement
 %type<ast> procedure_statement statement compound_statement statement_list while_statement identifier_list declarations arguments subprogram_head
 %type<ast> term factor simple_expression expression print_statement if_statement else_if_statement subprogram_declarations subprogram_declaration
 %type<ival> variable standard_type type
@@ -77,8 +77,7 @@ subprogram_declarations:
         | 
 ;
 subprogram_declaration:
-        subprogram_head declarations compound_statement                                         {sub_program_map[subName] = 
-        makeStatement(makeCompoundStmt(combineStatement($1, combineStatement($2, $3))), 0)}
+        subprogram_head declarations compound_statement                                         {sub_program_map[subName] = makeStatement(makeCompoundStmt(combineStatement($1, combineStatement($2, $3))), 0)}
 ;
 subprogram_head:
         T_FUNCTION T_ID arguments T_COLON standard_type T_SEMICOLON                             {$$ = $3; varType=FUNCTION; subName=$2;}
@@ -125,19 +124,19 @@ while_statement:
         | T_WHILE expression T_COLON statement T_ELSE T_COLON statement                         {$$ = makeIfElse($2, makeWhile($2, $4), $7)}
 ;
 for_statement:
-         T_FOR for_condition T_COLON statement
-        | T_FOR for_condition T_COLON statement T_ELSE T_COLON statement 
+         T_FOR for_condition T_COLON statement                                                  {$$ = makeFor($2, $4)}
+        | T_FOR for_condition T_COLON statement T_ELSE T_COLON statement                        {$$ = makeIfElse($2, makeFor($2, $4), $7)}
 ;
 for_condition:
-        variable T_IN variable
+        variable T_IN variable                                                                  {$$ = makeForCondition($1, $3)}
 ;
 print_statement:
-        T_PRINT                                                                                 {}
+        T_PRINT                                                                                 {$$ = makeNop()}
         | T_PRINT T_LEFT_PARENTHESIS expression T_RIGHT_PARENTHESIS                             {$$ = makeCall("print", $3);}
 ;
 variable:
         T_ID                                                                                    {$$ = $1; varIndex = 0;}
-        | T_ID T_LEFT_BRACKET expression T_RIGHT_BRACKET                                        {$$ = $1; varIndex = (int)$3->data.val;}
+        | T_ID T_LEFT_BRACKET expression T_RIGHT_BRACKET                                        {$$ = $1; }
 ;
 procedure_statement:
         T_ID T_LEFT_PARENTHESIS actual_parameter_expression T_RIGHT_PARENTHESIS                 {$$ = makeProcedure($1, $3)}
@@ -158,7 +157,6 @@ expression:
         | simple_expression T_SMALLER_EQUAL simple_expression                                   {$$ = makeExp($1, $3, '2');}
         | simple_expression T_EQUAL simple_expression                                           {$$ = makeExp($1, $3, '=');}
         | simple_expression T_NOT_EQUAL simple_expression                                       {$$ = makeExp($1, $3, '!');}
-        // | simple_expression T_IN simple_expression                                              {}
 ;
 simple_expression:
         term                                                                                    {$$ = $1;}
@@ -172,7 +170,7 @@ term:
         | factor T_DIVIDE term                                                                  {$$ = makeExp($1, $3, '/');}
 ;
 factor: 
-        T_INTEGER                                                                               {$$ = makeExpByNum($1);}
+        T_INTEGER                                                                               {$$ = makeExpByNum($1); varIndex = $1;}
         | T_FLOATING                                                                            {$$ = makeExpByNum($1)}
         | variable                                                                              {$$ = makeExpByName($1, varIndex);}
         | procedure_statement                                                                   {$$ = makeExpByAddress(makeStatement($1, 0));}
@@ -194,6 +192,7 @@ int main(int argc, char* argv[]) {
         struct ExecEnviron* e = createEnv();
         execAst(e, a);
         freeEnv(e);
+
 	return 0;
 }
 
