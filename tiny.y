@@ -43,11 +43,11 @@ void yyerror(const char* s);
 %left T_PLUS T_MINUS
 %left T_MULTIPLE T_DIVIDE
 
-%type<ast> parameter_list actual_parameter_expression expression_list for_condition for_statement
+%type<ast> parameter_list actual_parameter_expression expression_list for_condition for_statement other_statment match_statement unmatch_statement
 %type<ast> procedure_statement statement compound_statement statement_list while_statement identifier_list declarations arguments subprogram_head
-%type<ast> term factor simple_expression expression print_statement if_statement else_if_statement subprogram_declarations subprogram_declaration
+%type<ast> term factor simple_expression expression print_statement subprogram_declarations subprogram_declaration
 %type<ival> variable standard_type type
-
+// %type<ast> else_if_statement if_statement
 %start program_start
 
 %%
@@ -99,26 +99,37 @@ statement_list:
         | statement T_SEMICOLON statement_list                                                  {$$ = makeStatement($1, $3);}      
 ;
 statement:
+        match_statement                                                                         {$$ = $1}
+        | unmatch_statement                                                                     {$$ = $1}
+;
+match_statement:
+        other_statment                                                                          {$$ = $1}
+        | T_IF expression T_COLON match_statement T_ELSE T_COLON match_statement                {$$ = makeIfElse($2, $4, $7)} 
+;
+unmatch_statement:
+        | T_IF expression T_COLON statement                                                     {$$ = makeIfElse($2, $4, makeNop())}
+        | T_IF expression T_COLON match_statement T_ELSE T_COLON unmatch_statement              {$$ = makeIfElse($2, $4, $7)}
+;
+other_statment:
         variable T_ASSIGN expression                                                            {$$ = makeAssignment($1, varIndex, $3);}
         | print_statement                                                                       {$$ = $1}
         | procedure_statement                                                                   {$$ = $1} 
         | compound_statement                                                                    {$$ = $1}
-        | if_statement                                                                          {$$ = $1}
         | while_statement                                                                       {$$ = $1}
-        | for_statement 
+        | for_statement                                                                         {$$ = $1}
         | T_RETURN expression                                                                   {$$ = makeAssignmentByAddress($2);} 
         | T_NOP                                                                                 {$$ = makeNop()}
 ;
-if_statement:
-        T_IF expression T_COLON statement                                                       {$$ = makeIfElse($2, $4, makeNop())}
-        | T_IF expression T_COLON statement T_ELSE T_COLON statement                            {$$ = makeIfElse($2, $4, $7)}
-        | T_IF expression T_COLON statement else_if_statement                                   {$$ = makeIfElse($2, $4, $5)}
-;
-else_if_statement:
-        T_ELIF expression T_COLON statement                                                     {$$ = makeIfElse($2, $4, makeNop())}
-        | T_ELIF expression T_COLON statement T_ELSE T_COLON statement                          {$$ = makeIfElse($2, $4, $7)}
-        | T_ELIF expression T_COLON statement else_if_statement                                 {$$ = makeIfElse($2, $4, $5)}
-;
+// if_statement:
+//         T_IF expression T_COLON statement                                                       {$$ = makeIfElse($2, $4, makeNop())}
+//         | T_IF expression T_COLON statement T_ELSE T_COLON statement                            {$$ = makeIfElse($2, $4, $7)}
+//         | T_IF expression T_COLON statement else_if_statement                                   {$$ = makeIfElse($2, $4, $5)}
+// ;
+// else_if_statement:
+//         T_ELIF expression T_COLON statement                                                     {$$ = makeIfElse($2, $4, makeNop())}
+//         | T_ELIF expression T_COLON statement T_ELSE T_COLON statement                          {$$ = makeIfElse($2, $4, $7)}
+//         | T_ELIF expression T_COLON statement else_if_statement                                 {$$ = makeIfElse($2, $4, $5)}
+// ;
 while_statement:
          T_WHILE expression T_COLON statement                                                   {$$ = makeWhile($2, $4);}
         | T_WHILE expression T_COLON statement T_ELSE T_COLON statement                         {$$ = makeIfElse($2, makeWhile($2, $4), $7)}
