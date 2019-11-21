@@ -50,7 +50,9 @@ static void execVar(struct ExecEnviron* e, struct AstElement* a);
 static void execProcedure(struct ExecEnviron* e, struct AstElement* a);
 static void execAssignAddress(struct ExecEnviron* e, struct AstElement* a);
 static void execCompoundStmt(struct ExecEnviron* e, struct AstElement* a);
+static float execAddrExp(struct ExecEnviron* e, struct AstElement* a);
 
+    
 
 /* Lookup Array for AST elements which yields values */
 static float(*valExecs[])(struct ExecEnviron* e, struct AstElement* a) =
@@ -68,7 +70,8 @@ static float(*valExecs[])(struct ExecEnviron* e, struct AstElement* a) =
     NULL,
     execBinExp,
     NULL,
-    NULL
+    NULL,
+    execAddrExp
 };
 
 /* lookup array for non-value AST elements */
@@ -87,7 +90,8 @@ static void(*runExecs[])(struct ExecEnviron* e, struct AstElement* a) =
     execProcedure,
     NULL,
     execAssignAddress,
-    execCompoundStmt
+    execCompoundStmt,
+    NULL
 };
 
 /* Dispatches any value expression */
@@ -264,10 +268,9 @@ static void execAssignAddress(struct ExecEnviron* e, struct AstElement* a) {
     assert(ekAssignAddress == a->kind);
     assert(e);
     struct AstElement* expression = a->data.assignment_by_address.expression;
-    int address = a->data.assignment_by_address.address;
 
-    mem_stack[address][1] = dispatchExpression(e, expression);
-    mem_stack[address][0] = FLOAT;
+    mem_stack[0][1] = dispatchExpression(e, expression);
+    mem_stack[0][0] = FLOAT;
 }
 
 static void execCompoundStmt(struct ExecEnviron* e, struct AstElement* a) {
@@ -288,6 +291,13 @@ static void execCompoundStmt(struct ExecEnviron* e, struct AstElement* a) {
     stackSize = stack_frame;
     memcpy(var_map, temp_var_map, var_map_size);
     free(temp_var_map);
+}
+
+static float execAddrExp(struct ExecEnviron* e, struct AstElement* a) {
+    assert(a);
+    assert(ekExpAddress == a->kind);
+    execStmt(e, a->data.expAddr.procedure);
+    return mem_stack[0][1];
 }
 
 void execAst(struct ExecEnviron* e, struct AstElement* a)

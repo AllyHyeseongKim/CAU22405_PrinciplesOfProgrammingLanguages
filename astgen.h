@@ -5,7 +5,7 @@
 struct AstElement
 {
     enum {ekId, ekNumber, ekBinExpression, ekAssignment, ekWhile, ekCall, ekStatements, ekIf, ekNop, ekVar, ekProcedure, 
-    ekParameter, ekAssignAddress, ekCompound, ekLastElement} kind;
+    ekParameter, ekAssignAddress, ekCompound, ekExpAddress, ekLastElement} kind;
     union
     {
         float val;
@@ -60,13 +60,22 @@ struct AstElement
         } parameter;
         struct
         {
-            int address;
             struct AstElement* expression;
         } assignment_by_address;
         struct
         {
             struct AstElement* statement;
         } compound;
+        struct
+        {
+            struct AstElement* procedure;
+        } expAddr;
+        struct
+        {
+            int left_var;
+            int right_var;
+            int num_call;
+        } for_condition;
     } data;
 };
 
@@ -83,6 +92,8 @@ struct AstElement* makeNop();
 struct AstElement* makeVariable(int name, int type, int index);
 struct AstElement* makeProcedure(int name, struct AstElement* parameter);
 struct AstElement* makeParameters(struct AstElement* dest, struct AstElement* toAppend);
-struct AstElement* makeAssignmentByAddress(int address, struct AstElement* val);
+struct AstElement* makeAssignmentByAddress(struct AstElement* val);
 struct AstElement* makeCompoundStmt(struct AstElement* stmt);
+struct AstElement* makeExpByAddress(struct AstElement* procedure);
+struct AstElement* makeForCondition(struct AstElement* procedure);
 #endif

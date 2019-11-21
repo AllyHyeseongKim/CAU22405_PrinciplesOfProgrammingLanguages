@@ -39,10 +39,11 @@ void yyerror(const char* s);
 %token T_PERIOD T_COMMA T_LEFT_PARENTHESIS T_RIGHT_PARENTHESIS T_FOR
 %token<cval> T_LEFT_BRACKET T_RIGHT_BRACKET T_COLON T_COMMENT T_ELIF T_NOT 
 
+%left T_LARGER T_LARGER_EQUAL T_SMALLER T_SMALLER_EQUAL T_EQUAL T_NOT_EQUAL
 %left T_PLUS T_MINUS
 %left T_MULTIPLE T_DIVIDE
 
-%type<ast> parameter_list actual_parameter_expression expression_list 
+%type<ast> parameter_list actual_parameter_expression expression_list for_condition
 %type<ast> procedure_statement statement compound_statement statement_list while_statement identifier_list declarations arguments subprogram_head
 %type<ast> term factor simple_expression expression print_statement if_statement else_if_statement subprogram_declarations subprogram_declaration
 %type<ival> variable standard_type type
@@ -106,7 +107,7 @@ statement:
         | if_statement                                                                          {$$ = $1}
         | while_statement                                                                       {$$ = $1}
         | for_statement 
-        | T_RETURN expression                                                                   {$$ = makeAssignmentByAddress(stack_frame, $2);} 
+        | T_RETURN expression                                                                   {$$ = makeAssignmentByAddress($2);} 
         | T_NOP                                                                                 {$$ = makeNop()}
 ;
 if_statement:
@@ -124,8 +125,11 @@ while_statement:
         | T_WHILE expression T_COLON statement T_ELSE T_COLON statement                         {$$ = makeIfElse($2, makeWhile($2, $4), $7)}
 ;
 for_statement:
-         T_FOR expression T_IN expression T_COLON statement
-        | T_FOR expression T_IN expression T_COLON statement T_ELSE T_COLON statement 
+         T_FOR for_condition T_COLON statement
+        | T_FOR for_condition T_COLON statement T_ELSE T_COLON statement 
+;
+for_condition:
+        variable T_IN variable
 ;
 print_statement:
         T_PRINT                                                                                 {}
@@ -154,7 +158,7 @@ expression:
         | simple_expression T_SMALLER_EQUAL simple_expression                                   {$$ = makeExp($1, $3, '2');}
         | simple_expression T_EQUAL simple_expression                                           {$$ = makeExp($1, $3, '=');}
         | simple_expression T_NOT_EQUAL simple_expression                                       {$$ = makeExp($1, $3, '!');}
-        | simple_expression T_IN simple_expression                                              {}
+        // | simple_expression T_IN simple_expression                                              {}
 ;
 simple_expression:
         term                                                                                    {$$ = $1;}
@@ -171,7 +175,7 @@ factor:
         T_INTEGER                                                                               {$$ = makeExpByNum($1);}
         | T_FLOATING                                                                            {$$ = makeExpByNum($1)}
         | variable                                                                              {$$ = makeExpByName($1, varIndex);}
-        | procedure_statement                                                                   {}
+        | procedure_statement                                                                   {$$ = makeExpByAddress(makeStatement($1, 0));}
         | T_NOT factor                                                                          {$$ = ($2->data.val) ? $2 : makeExpByNum(0)}
         | T_PLUS factor                                                                         {$$ = makeExp(makeExpByNum(0), $2, '+')}
         | T_MINUS factor                                                                        {$$ = makeExp(makeExpByNum(0), $2, '-')}

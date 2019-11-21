@@ -198,9 +198,8 @@ struct AstElement* makeParameters(struct AstElement* dest, struct AstElement* to
     return dest;   
 }
 
-struct AstElement* makeAssignmentByAddress(int address, struct AstElement* val) {
+struct AstElement* makeAssignmentByAddress(struct AstElement* val) {
     struct AstElement* result = checkAlloc(sizeof(*result));
-    result->data.assignment_by_address.address = address;
     result->data.assignment_by_address.expression = val;
     result->kind = ekAssignAddress;
 
@@ -214,5 +213,12 @@ struct AstElement* makeCompoundStmt(struct AstElement* stmt) {
     struct AstElement* result = checkAlloc(sizeof(*result));
     result->data.compound.statement = stmt;
     result->kind = ekCompound;
+    return result;
+}
+
+struct AstElement* makeExpByAddress(struct AstElement* procedure) {
+    struct AstElement* result = checkAlloc(sizeof(*result));
+    result->kind = ekExpAddress;
+    result->data.expAddr.procedure = procedure;
     return result;
 }

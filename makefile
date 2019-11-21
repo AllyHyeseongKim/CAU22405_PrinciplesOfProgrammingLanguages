@@ -1,7 +1,7 @@
 all: tiny
 
 tiny.tab.c tiny.tab.h:	tiny.y
-	bison -d tiny.y
+	bison -d tiny.y --report=all
 
 lex.yy.c: tiny.l tiny.tab.h
 	flex tiny.l
