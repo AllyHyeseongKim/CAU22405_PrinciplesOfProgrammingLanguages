@@ -17,6 +17,8 @@ TYPE varType;
 int subName=0;
 
 void yyerror(const char* s);
+
+extern int yylineno;
 %}
 
 %union {
@@ -55,7 +57,7 @@ void yyerror(const char* s);
 %%
 program_start:
         | T_MAINPROG T_ID T_SEMICOLON declarations subprogram_declarations compound_statement   { make_id(0, 0, 1);(*(struct AstElement**)astDest) = combineStatement($4, $6);}
-        | T_MAINPROG T_ID error declarations subprogram_declarations compound_statement     {printf("No semicolon"); (*(struct AstElement**)astDest) = combineStatement($4, $6);}
+        | T_MAINPROG T_ID error declarations subprogram_declarations compound_statement     {printf("No semicolon\n"); (*(struct AstElement**)astDest) = combineStatement($4, $6);}
 
 ;
 declarations:
@@ -222,7 +224,7 @@ int main(int argc, char* argv[]) {
 }
 
 void yyerror(const char* s) {
-	fprintf(stderr, "Parse error: %s\n", s);
+	fprintf(stderr, "Parse error(line %d): %s\n", yylineno, s);
 }
 
 

@@ -1,5 +1,4 @@
-mainprog main;
-int a;
+mainprog main
 begin
     a = 1;
     if a == 1:
