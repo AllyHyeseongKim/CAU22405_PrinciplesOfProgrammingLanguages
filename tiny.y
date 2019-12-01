@@ -39,6 +39,7 @@ extern int yylineno;
 %token T_MAINPROG T_FUNCTION T_PROCEDURE T_BEGIN T_END T_IF T_THEN 
 %token T_ELSE T_NOP T_WHILE T_RETURN T_PRINT T_IN T_OPERATOR T_SEMICOLON 
 %token T_PERIOD T_COMMA T_LEFT_PARENTHESIS T_RIGHT_PARENTHESIS T_FOR
+%token T_INVALID
 %token<cval> T_LEFT_BRACKET T_RIGHT_BRACKET T_COLON T_COMMENT T_ELIF T_NOT 
 
 %left T_LARGER T_LARGER_EQUAL T_SMALLER T_SMALLER_EQUAL T_EQUAL T_NOT_EQUAL
@@ -49,7 +50,7 @@ extern int yylineno;
 %type<ast> match_else_if_statement
 %type<ast> parameter_list actual_parameter_expression expression_list for_condition other_statment match_statement unmatch_statement
 %type<ast> procedure_statement statement compound_statement statement_list identifier_list declarations arguments subprogram_head
-%type<ast> term factor simple_expression expression print_statement subprogram_declarations subprogram_declaration
+%type<ast> term factor simple_expression expression print_statement subprogram_declarations subprogram_declaration statement_no_semicolon
 %type<ival> variable standard_type type
 // %type<ast> else_if_statement if_statement while_statement for_statement
 %start program_start
@@ -98,9 +99,13 @@ parameter_list:
 compound_statement:
         T_BEGIN statement_list T_END                                                            {$$ = makeStatement(makeCompoundStmt($2), 0)}
 ;
+statement_no_semicolon:
+        statement statement_list                                                                {$$ = makeSemicolonError();}      
+;
 statement_list:
         statement                                                                               {$$ = makeStatement($1, 0);}
-        | statement T_SEMICOLON statement_list                                                  {$$ = makeStatement($1, $3);}      
+        | statement T_SEMICOLON statement_list                                                  {$$ = makeStatement($1, $3);}
+        | statement_no_semicolon                                                                {$$ = makeSemicolonError();}      
 ;
 statement:
         match_statement                                                                         {$$ = $1}
@@ -184,6 +189,7 @@ expression:
         | simple_expression T_SMALLER_EQUAL simple_expression                                   {$$ = makeExp($1, $3, '2');}
         | simple_expression T_EQUAL simple_expression                                           {$$ = makeExp($1, $3, '=');}
         | simple_expression T_NOT_EQUAL simple_expression                                       {$$ = makeExp($1, $3, '!');}
+        | simple_expression T_INVALID simple_expression                                         {$$ = makeExp($1, $3, 'e');}
 ;
 simple_expression:
         term                                                                                    {$$ = $1;}

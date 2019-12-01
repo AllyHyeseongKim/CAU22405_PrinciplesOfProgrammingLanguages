@@ -152,6 +152,13 @@ struct AstElement* makeVariable(int name, int type, int index){
     return result;
 }
 
+struct AstElement* makeSemicolonError() {
+    struct AstElement* result = checkAlloc(sizeof(*result));
+    fprintf(stderr, "Missing Semicolon\n");
+    exit(1);
+    return result;
+}
+
 struct AstElement* makeProcedure(int name, struct AstElement* parameter) {
     struct AstElement* result = checkAlloc(sizeof(*result));
     result->kind = ekProcedure;
