@@ -19,14 +19,21 @@ void make_id(int var_name, TYPE varType, int len) {
 }
 
 float get_var_val(int var_name, int varIndex) {
-        if(!(var_map[var_name][0] + varIndex)) printf("Used undecleared variable: id %d\n", var_name);
-        if(mem_stack[var_map[var_name][0]][0] == INT) return mem_stack[var_map[var_name][0] + varIndex][1];
-        else return mem_stack[var_map[var_name][0] + varIndex][1];
+        if(!(var_map[var_name][0] + varIndex)){
+            printf("Used undeclared variable: id %d\n", var_name);
+            exit(1);
+        }
+        if(mem_stack[var_map[var_name][0]][0] == INT)
+            return mem_stack[var_map[var_name][0] + varIndex][1];
+        else
+            return mem_stack[var_map[var_name][0] + varIndex][1];
 }
 
 void assign_var(int var_name, float val, int varIndex) {
-        if(mem_stack[var_map[var_name][0]][0] == INT) mem_stack[var_map[var_name][0] + varIndex][1] = (int)val;
-        else mem_stack[var_map[var_name][0] + varIndex][1] = (float)val;
+        if(mem_stack[var_map[var_name][0]][0] == INT)
+            mem_stack[var_map[var_name][0] + varIndex][1] = (int)val;
+        else
+            mem_stack[var_map[var_name][0] + varIndex][1] = (float)val;
 }
 
 void print_val(float num) {
