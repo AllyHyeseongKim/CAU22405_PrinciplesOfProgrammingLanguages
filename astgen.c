@@ -159,11 +159,21 @@ struct AstElement* makeSemicolonError() {
     return result;
 }
 
-struct AstElement* makeProcedure(int name, struct AstElement* parameter) {
+struct AstElement* makeMainProgError() {
     struct AstElement* result = checkAlloc(sizeof(*result));
-    result->kind = ekProcedure;
-    result->data.procedure.name = name;
-    result->data.procedure.parameter = parameter;
+    fprintf(stderr, "No mainprog declaration\n");
+    exit(1);
+    return result;
+}
+
+// struct AstElement* makeProcedure(int name, struct AstElement* parameter) {
+struct AstElement* makeProcedure() {
+    struct AstElement* result = checkAlloc(sizeof(*result));
+    // result->kind = ekProcedure;
+    // result->data.procedure.name = name;
+    // result->data.procedure.parameter = parameter;
+    fprintf(stderr, "This program does not accept function calls except 'print' with only one parameter\n");
+    exit(1);
     return result;
 }
 

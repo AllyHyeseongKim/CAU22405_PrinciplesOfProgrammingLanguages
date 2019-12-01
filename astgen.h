@@ -90,7 +90,8 @@ struct AstElement* makeCall(char* name, struct AstElement* param);
 struct AstElement* makeIfElse(struct AstElement* cond, struct AstElement* ifStmt, struct AstElement* elseStmt);
 struct AstElement* makeNop();
 struct AstElement* makeVariable(int name, int type, int index);
-struct AstElement* makeProcedure(int name, struct AstElement* parameter);
+// struct AstElement* makeProcedure(int name, struct AstElement* parameter);
+struct AstElement* makeProcedure();
 struct AstElement* makeParameters(struct AstElement* dest, struct AstElement* toAppend);
 struct AstElement* makeAssignmentByAddress(struct AstElement* val);
 struct AstElement* makeCompoundStmt(struct AstElement* stmt);
@@ -98,4 +99,5 @@ struct AstElement* makeExpByAddress(struct AstElement* procedure);
 struct AstElement* makeForCondition(int left, int right);
 struct AstElement* makeFor(struct AstElement* cond, struct AstElement* exec);
 struct AstElement* makeSemicolonError();
+struct AstElement* makeMainProgError();
 #endif

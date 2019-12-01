@@ -57,9 +57,9 @@ extern int yylineno;
 
 %%
 program_start:
-        | T_MAINPROG T_ID T_SEMICOLON declarations subprogram_declarations compound_statement   { make_id(0, 0, 1);(*(struct AstElement**)astDest) = combineStatement($4, $6);}
-        | T_MAINPROG T_ID error declarations subprogram_declarations compound_statement     {printf("No semicolon\n"); (*(struct AstElement**)astDest) = combineStatement($4, $6);}
-
+        | T_MAINPROG T_ID T_SEMICOLON declarations subprogram_declarations compound_statement   {make_id(0, 0, 1);(*(struct AstElement**)astDest) = combineStatement($4, $6);}
+        | T_MAINPROG T_ID error declarations subprogram_declarations compound_statement         {printf("No semicolon\n"); (*(struct AstElement**)astDest) = combineStatement($4, $6);}
+        | T_ID                                                                                  {makeMainProgError();}
 ;
 declarations:
         type identifier_list T_SEMICOLON declarations                                           {$$ = combineStatement($2, $4);}                                          
@@ -171,14 +171,15 @@ variable:
         | T_ID T_LEFT_BRACKET expression T_RIGHT_BRACKET                                        {$$ = $1; varIndex = 0;}
 ;
 procedure_statement:
-        T_ID T_LEFT_PARENTHESIS actual_parameter_expression T_RIGHT_PARENTHESIS                 {$$ = makeProcedure($1, $3)}
+        T_ID T_LEFT_PARENTHESIS actual_parameter_expression T_RIGHT_PARENTHESIS                 {$$ = makeProcedure()}
+        | T_PRINT T_LEFT_PARENTHESIS actual_parameter_expression T_RIGHT_PARENTHESIS            {$$ = makeProcedure()}
 ;
 actual_parameter_expression:
-        expression_list                                                                         {$$ = $1; }
+        expression_list                                                                         {$$ = $1;}
         |                                                                                       {$$ = makeParameters(0, 0)}
 ;
 expression_list:
-        expression                                                                              {$$ = makeParameters($1, 0); }
+        expression                                                                              {$$ = makeParameters($1, 0);}
         | expression T_COMMA expression_list                                                    {$$ = makeParameters($1, $3);}
 ;
 expression:
