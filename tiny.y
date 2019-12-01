@@ -85,7 +85,7 @@ subprogram_declaration:
 ;
 subprogram_head:
         T_FUNCTION T_ID arguments T_COLON standard_type T_SEMICOLON                             {$$ = $3; varType=FUNCTION; subName=$2;}
-        | T_PROCEDURE T_ID arguments T_SEMICOLON                                                {$$ = $3; varType=PROCEDURE; subName=$2;}
+        | T_PROCEDURE T_ID arguments T_SEMICOLON                                                {$$ = makeStatement(makeNop(), 0)}
 ;
 arguments:
         T_LEFT_PARENTHESIS parameter_list T_RIGHT_PARENTHESIS                                   {$$ = $2}
