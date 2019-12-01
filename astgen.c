@@ -98,7 +98,6 @@ struct AstElement* combineStatement(struct AstElement* result, struct AstElement
     }
     assert(result);
     assert(ekStatements == result->kind);
-    printf("ek: %d, kind: %d", ekStatements, toAppend->kind);
     assert(ekStatements == toAppend->kind);
 
     int init_size = result->data.statements.count;
