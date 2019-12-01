@@ -34,6 +34,8 @@
 "["                                                 {return T_LEFT_BRACKET;}
 "]"                                                 {return T_RIGHT_BRACKET;}
 ":"                                                 {return T_COLON;}
+"&"                                                 {return T_INVALID;}
+"%"                                                 {return T_INVALID;}
 [ \t\n]*                                              ;
 "mainprog"                                          {return T_MAINPROG;}
 "function"                                          {return T_FUNCTION;}

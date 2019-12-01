@@ -19,7 +19,7 @@ void make_id(int var_name, TYPE varType, int len) {
 }
 
 float get_var_val(int var_name, int varIndex) {
-        if(!(var_map[var_name][0] + varIndex)) printf("Use undecleared variable: id %d\n", var_name);
+        if(!(var_map[var_name][0] + varIndex)) printf("Used undecleared variable: id %d\n", var_name);
         if(mem_stack[var_map[var_name][0]][0] == INT) return mem_stack[var_map[var_name][0] + varIndex][1];
         else return mem_stack[var_map[var_name][0] + varIndex][1];
 }
@@ -179,7 +179,7 @@ static float execBinExp(struct ExecEnviron* e, struct AstElement* a)
         case '!':
             return left != right;
         default:
-            fprintf(stderr,  "OOPS: Unknown operator:%c\n", a->data.expression.op);
+            fprintf(stderr,  "OOPS: Unknown operator\n");
             exit(1);
     }
     /* no return here, since every switch case returns some value (or bails out) */
