@@ -170,9 +170,9 @@ static float execBinExp(struct ExecEnviron* e, struct AstElement* a)
             return left > right;
         case '<':
             return left < right;
-        case '1':
-            return left <= right;
         case '2':
+            return left <= right;
+        case '1':
             return left >= right;
         case '=':
             return left == right;
