@@ -223,7 +223,10 @@ static void execCall(struct ExecEnviron* e, struct AstElement* a)
 
 static void execStmt(struct ExecEnviron* e, struct AstElement* a)
 {
-    assert(a);
+    if(!a){
+        fprintf(stderr,  "Invalid function call\n");
+        exit(1);
+    }
     assert(ekStatements == a->kind);
     int i;
     for(i=0; i<a->data.statements.count; i++)
