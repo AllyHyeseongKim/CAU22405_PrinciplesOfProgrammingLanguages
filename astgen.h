@@ -98,4 +98,5 @@ struct AstElement* makeExpByAddress(struct AstElement* procedure);
 struct AstElement* makeForCondition(int left, int right);
 struct AstElement* makeFor(struct AstElement* cond, struct AstElement* exec);
 struct AstElement* makeSemicolonError();
+struct AstElement* makeMainProgError();
 #endif

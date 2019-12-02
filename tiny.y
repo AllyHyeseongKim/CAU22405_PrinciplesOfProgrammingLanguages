@@ -59,7 +59,7 @@ extern int yylineno;
 program_start:
         | T_MAINPROG T_ID T_SEMICOLON declarations subprogram_declarations compound_statement   { make_id(0, 0, 1);(*(struct AstElement**)astDest) = combineStatement($4, $6);}
         | T_MAINPROG T_ID error declarations subprogram_declarations compound_statement     {printf("No semicolon\n"); (*(struct AstElement**)astDest) = combineStatement($4, $6);}
-
+        | T_ID                                                                                  {makeMainProgError();}
 ;
 declarations:
         type identifier_list T_SEMICOLON declarations                                           {$$ = combineStatement($2, $4);}                                          
@@ -79,7 +79,7 @@ standard_type:
 ;
 subprogram_declarations:
         subprogram_declaration subprogram_declarations                                          {$$ = combineStatement($1, $2)}
-        |                                                                                       { $$ = makeNop()}
+        |                                                                                       {$$ = makeStatement(makeNop(), 0)}
 ;
 subprogram_declaration:
         subprogram_head declarations compound_statement                                         {$$ = sub_program_map[subName] = makeStatement(makeCompoundStmt(combineStatement($1, combineStatement($2, $3))), 0)}
